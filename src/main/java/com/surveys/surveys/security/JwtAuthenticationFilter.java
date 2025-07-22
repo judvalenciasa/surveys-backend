@@ -13,6 +13,33 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
+/**
+ * Filtro de autenticación JWT que intercepta todas las peticiones HTTP
+ * para validar tokens JWT y establecer la autenticación en el contexto
+ * de seguridad de Spring.
+ * 
+ * <p>
+ * Este filtro:
+ * <ul>
+ *   <li>Extrae el token JWT del header Authorization</li>
+ *   <li>Valida el token usando {@link JwtService}</li>
+ *   <li>Carga los detalles del usuario</li>
+ *   <li>Establece la autenticación en el SecurityContextHolder</li>
+ * </ul>
+ * 
+ * <p>
+ * El filtro ignora ciertas rutas públicas como:
+ * <ul>
+ *   <li>/api/auth/** - Endpoints de autenticación</li>
+ *   <li>/api/public/** - Endpoints públicos</li>
+ * </ul>
+ *
+ * @author Juan David Valencia
+ * @version 1.0
+ * @since 2024-03-22
+ * @see JwtService
+ * @see SecurityContextHolder
+ */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -57,7 +84,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Token inválido");
+            response.getWriter().write("Token inválido o expirado");
         }
     }
 } 

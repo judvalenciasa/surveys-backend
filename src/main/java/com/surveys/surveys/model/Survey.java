@@ -4,6 +4,23 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.Instant;
 
+/**
+ * Representa una encuesta en el sistema.
+ * Esta clase es la entidad principal que contiene toda la información
+ * relacionada con una encuesta, incluyendo su configuración visual,
+ * estado y programación.
+ *
+ * <p>Ejemplo de uso:
+ * <pre>
+ * Survey survey = new Survey();
+ * survey.setName("Encuesta de Satisfacción");
+ * survey.setStatus(SurveyStatus.CREADA);
+ * </pre>
+ *
+ * @author TuNombre
+ * @version 1.0
+ * @since 2024-03-22
+ */
 @Document(collection = "surveys")
 public class Survey {
     @Id

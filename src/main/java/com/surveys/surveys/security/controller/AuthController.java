@@ -4,13 +4,33 @@ import com.surveys.surveys.dto.LoginRequest;
 import com.surveys.surveys.dto.RegisterRequest;
 import com.surveys.surveys.security.dto.AuthResponse;
 import com.surveys.surveys.security.service.AuthService;
-
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controlador para la gestión de autenticación.
+ *
+ * @author Juan David Valencia
+ * @version 1.0
+ * @since 2025-07-22
+ */
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "*")
+@CrossOrigin(
+    origins = "*",
+    methods = {
+        RequestMethod.POST,
+        RequestMethod.GET,
+        RequestMethod.OPTIONS
+    },
+    allowedHeaders = {
+        "Authorization",
+        "Content-Type"
+    },
+    exposedHeaders = "Authorization"
+)
 public class AuthController {
 
     private final AuthService authService;
@@ -20,12 +40,56 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(authService.register(request));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refreshToken(
+            @RequestHeader("Authorization") String refreshToken) {
+        if (refreshToken != null && refreshToken.startsWith("Bearer ")) {
+            return ResponseEntity.ok(
+                authService.refreshToken(refreshToken.substring(7))
+            );
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            @RequestHeader("Authorization") String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            authService.logout(token.substring(7));
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    @GetMapping("/validate")
+    public ResponseEntity<Boolean> validateToken(
+            @RequestHeader("Authorization") String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            return ResponseEntity.ok(
+                authService.validateToken(token.substring(7))
+            );
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(
+            @RequestHeader("Authorization") String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            return ResponseEntity.ok(
+                authService.getCurrentUser(token.substring(7))
+            );
+        }
+        return ResponseEntity.badRequest().build();
     }
 } 

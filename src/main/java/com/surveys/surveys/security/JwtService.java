@@ -1,8 +1,6 @@
 package com.surveys.surveys.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +11,26 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * Servicio que maneja la generación y validación de tokens JWT (JSON Web Token).
+ * Esta clase encapsula toda la lógica relacionada con la creación, validación
+ * y extracción de información de tokens JWT utilizados para la autenticación.
+ * 
+ * <p>
+ * Las principales funcionalidades incluyen:
+ * <ul>
+ *   <li>Generación de tokens JWT para usuarios autenticados</li>
+ *   <li>Validación de tokens JWT recibidos</li>
+ *   <li>Extracción de claims y username del token</li>
+ *   <li>Manejo de fechas de expiración</li>
+ * </ul>
+ * 
+
+ *
+ * @author Juan David Valencia
+ * @version 1.0
+ * @since 2024-03-22
+ */
 @Service
 public class JwtService {
     
@@ -22,27 +40,65 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private long jwtExpiration;
 
+    /**
+     * Extrae el nombre de usuario del token JWT.
+     *
+     * @param token token JWT
+     * @return nombre de usuario almacenado en el token
+     */
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
+    /**
+     * Genera un token JWT para un usuario.
+     *
+     * @param userDetails detalles del usuario
+     * @return token JWT generado
+     */
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
 
+    /**
+     * Genera un token JWT con claims adicionales.
+     *
+     * @param extraClaims claims adicionales para incluir en el token
+     * @param userDetails detalles del usuario
+     * @return token JWT generado
+     */
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
 
+    /**
+     * Valida si un token JWT es válido para un usuario específico.
+     *
+     * @param token token JWT a validar
+     * @param userDetails detalles del usuario
+     * @return true si el token es válido
+     */
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    }
+
+    /**
+     * Extrae un claim específico del token.
+     *
+     * @param token token JWT
+     * @param claimsResolver función para extraer el claim
+     * @return valor del claim extraído
+     */
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
     }
 
     private boolean isTokenExpired(String token) {
@@ -51,11 +107,6 @@ public class JwtService {
 
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
-    }
-
-    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
     }
 
     private Claims extractAllClaims(String token) {

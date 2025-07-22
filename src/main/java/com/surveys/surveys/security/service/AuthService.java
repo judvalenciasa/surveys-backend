@@ -4,17 +4,22 @@ import com.surveys.surveys.dto.LoginRequest;
 import com.surveys.surveys.dto.RegisterRequest;
 import com.surveys.surveys.model.User;
 import com.surveys.surveys.repository.UserRepository;
-import com.surveys.surveys.security.JwtService;
 import com.surveys.surveys.security.dto.AuthResponse;
-
+import com.surveys.surveys.security.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-
+/**
+ * Servicio que maneja la autenticación y registro de usuarios.
+ * Proporciona funcionalidades para registro de nuevos usuarios y login.
+ * 
+ * @author Juan David Valencia
+ * @version 1.0
+ * @since 2025-07-22
+ */
 @Service
 public class AuthService {
     private final UserRepository userRepository;
@@ -22,6 +27,14 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+    /**
+     * Constructor que inicializa el servicio con sus dependencias.
+     * 
+     * @param userRepository Repositorio para operaciones con usuarios
+     * @param passwordEncoder Codificador para encriptar contraseñas
+     * @param jwtService Servicio para manejo de tokens JWT
+     * @param authenticationManager Gestor de autenticación de Spring
+     */
     public AuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
@@ -33,6 +46,13 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
     }
 
+    /**
+     * Registra un nuevo usuario en el sistema.
+     * 
+     * @param request DTO con la información del nuevo usuario
+     * @return AuthResponse con el token JWT y datos del usuario
+     * @throws RuntimeException si el username o email ya existen
+     */
     public AuthResponse register(RegisterRequest request) {
         // Validaciones
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -49,37 +69,72 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         
         // Asignar roles
-        var roles = new HashSet<String>();
-        roles.add("USER");
-        user.setRoles(roles);
+        // Set<String> roles = new HashSet<>(); // This line was removed as per the new_code
+        // roles.add("USER"); // This line was removed as per the new_code
+        // user.setRoles(roles); // This line was removed as per the new_code
 
-        // Guardar y generar token
-        User savedUser = userRepository.save(user);
-        String token = jwtService.generateToken(savedUser);
+        // Guardar usuario
+        try {
+            User savedUser = userRepository.save(user);
+            String token = jwtService.generateToken(savedUser);
+            return new AuthResponse(token, savedUser.getUsername(), savedUser.getRoles());
+        } catch (Exception e) {
+            throw new RuntimeException("Error al guardar el usuario: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Autentica un usuario existente.
+     * 
+     * @param request DTO con las credenciales del usuario
+     * @return AuthResponse con el token JWT y datos del usuario
+     * @throws RuntimeException si las credenciales son inválidas
+     */
+    public AuthResponse login(LoginRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                request.getUsername(),
+                request.getPassword()
+            )
+        );
         
-        return new AuthResponse(token, savedUser.getUsername(), savedUser.getRoles());
+        User user = (User) authentication.getPrincipal();
+        String token = jwtService.generateToken(user);
+        
+        return new AuthResponse(token, user.getUsername(), user.getRoles());
     }
 
-    public AuthResponse login(LoginRequest request) {
-        try {
-            // Autenticar
-            authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                    request.getUsername(),
-                    request.getPassword()
-                )
-            );
-
-            // Buscar usuario
-            User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-            // Generar token
-            String token = jwtService.generateToken(user);
+    public AuthResponse refreshToken(String refreshToken) {
+        String username = jwtService.extractUsername(refreshToken);
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
             
-            return new AuthResponse(token, user.getUsername(), user.getRoles());
-        } catch (AuthenticationException e) {
-            throw new RuntimeException("Credenciales inválidas");
+        if (jwtService.isTokenValid(refreshToken, user)) {
+            String newToken = jwtService.generateToken(user);
+            return new AuthResponse(newToken, user.getUsername(), user.getRoles());
         }
+        throw new RuntimeException("Refresh token inválido");
+    }
+
+    public void logout(String token) {
+        // Implementar lógica de logout si es necesario
+        // Por ejemplo, agregar el token a una lista negra
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            String username = jwtService.extractUsername(token);
+            User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            return jwtService.isTokenValid(token, user);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public User getCurrentUser(String token) {
+        String username = jwtService.extractUsername(token);
+        return userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 } 

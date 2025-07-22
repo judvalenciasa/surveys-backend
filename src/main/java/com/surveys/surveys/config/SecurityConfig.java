@@ -13,25 +13,51 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
-import com.surveys.surveys.security.RateLimitingFilter;
 
+/**
+ * Configuración de seguridad de la aplicación.
+ * Define la configuración de Spring Security, incluyendo:
+ * <ul>
+ *   <li>Filtros de seguridad</li>
+ *   <li>Reglas de autorización</li>
+ *   <li>Configuración de CORS y CSRF</li>
+ *   <li>Manejo de sesiones</li>
+ * </ul>
+ *
+ * <p>Esta configuración utiliza JWT para la autenticación
+ * y establece una política stateless para las sesiones.
+ *
+ * @author Juan David Valencia
+ * @version 1.0
+ * @since 2025-07-22
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
-    private final RateLimitingFilter rateLimitingFilter;
 
+    /**
+     * Constructor que inicializa los componentes de seguridad.
+     *
+     * @param jwtAuthFilter filtro de autenticación JWT
+     * @param authenticationProvider proveedor de autenticación
+     */
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthFilter,
-            AuthenticationProvider authenticationProvider,
-            RateLimitingFilter rateLimitingFilter) {
+            AuthenticationProvider authenticationProvider) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.authenticationProvider = authenticationProvider;
-        this.rateLimitingFilter = rateLimitingFilter;
     }
 
+    /**
+     * Configura la cadena de filtros de seguridad.
+     * 
+     * @param http configuración de seguridad HTTP
+     * @return cadena de filtros configurada
+     * @throws Exception si hay un error en la configuración
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -45,12 +71,16 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
             .authenticationProvider(authenticationProvider)
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterAfter(rateLimitingFilter, JwtAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
+    /**
+     * Configura las políticas CORS.
+     * 
+     * @return origen de configuración CORS
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
