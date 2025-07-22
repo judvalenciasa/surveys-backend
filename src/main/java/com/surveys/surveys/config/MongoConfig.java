@@ -1,5 +1,10 @@
 package com.surveys.surveys.config;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -8,8 +13,28 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoRepositories(basePackages = "com.surveys.surveys.repository")
 public class MongoConfig extends AbstractMongoClientConfiguration {
 
+    @Value("${spring.data.mongodb.database}")
+    private String databaseName;
+
+    @Value("${spring.data.mongodb.host}")
+    private String host;
+
+    @Value("${spring.data.mongodb.port}")
+    private int port;
+
     @Override
     protected String getDatabaseName() {
-        return "surveys_db";
+        return databaseName;
+    }
+
+    @Override
+    public MongoClient mongoClient() {
+        ConnectionString connectionString = new ConnectionString(
+            String.format("mongodb://%s:%d", host, port)
+        );
+        MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
+            .applyConnectionString(connectionString)
+            .build();
+        return MongoClients.create(mongoClientSettings);
     }
 }

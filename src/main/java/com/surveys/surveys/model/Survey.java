@@ -3,7 +3,6 @@ package com.surveys.surveys.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.Instant;
-import java.util.List;
 
 @Document(collection = "surveys")
 public class Survey {
