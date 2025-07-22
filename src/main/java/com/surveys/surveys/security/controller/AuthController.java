@@ -1,9 +1,10 @@
-package com.surveys.surveys.controller;
+package com.surveys.surveys.security.controller;
 
-import com.surveys.surveys.dto.AuthResponse;
 import com.surveys.surveys.dto.LoginRequest;
 import com.surveys.surveys.dto.RegisterRequest;
-import com.surveys.surveys.service.AuthService;
+import com.surveys.surveys.security.dto.AuthResponse;
+import com.surveys.surveys.security.service.AuthService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

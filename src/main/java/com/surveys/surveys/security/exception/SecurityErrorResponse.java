@@ -1,4 +1,4 @@
-package com.surveys.surveys.exception;
+package com.surveys.surveys.security.exception;
 
 import java.time.LocalDateTime;
 

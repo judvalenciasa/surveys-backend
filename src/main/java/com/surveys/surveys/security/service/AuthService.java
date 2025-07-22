@@ -1,11 +1,12 @@
-package com.surveys.surveys.service;
+package com.surveys.surveys.security.service;
 
-import com.surveys.surveys.dto.AuthResponse;
 import com.surveys.surveys.dto.LoginRequest;
 import com.surveys.surveys.dto.RegisterRequest;
 import com.surveys.surveys.model.User;
 import com.surveys.surveys.repository.UserRepository;
 import com.surveys.surveys.security.JwtService;
+import com.surveys.surveys.security.dto.AuthResponse;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;

@@ -1,4 +1,4 @@
-package com.surveys.surveys.dto;
+package com.surveys.surveys.security.dto;
 
 import java.util.Set;
 
