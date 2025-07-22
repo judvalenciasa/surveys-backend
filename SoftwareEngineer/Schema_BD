@@ -1,0 +1,91 @@
+[{
+  "collection": "surveys",
+  "schema": {
+    "_id": "surveyId",
+    "name": "Encuesta de Clima Laboral",
+    "description": "Medición trimestral del clima organizacional",
+    "status": "CREADA",
+    "scheduledOpen": "2025-08-01T00:00:00Z",
+    "scheduledClose": "2025-08-05T23:59:59Z",
+    "isTemplate": false,
+    "previousVersionId": "v1Id",
+    "branding": {
+      "logoUrl": "...",
+      "primaryColor": "#FF9900",
+      "font": "Roboto"
+    },
+    "questions": []
+  }
+},
+
+{
+  "collection": "questions",
+  "schema": {
+    "_id": "questionId",
+    "type": "multiple_choice",
+    "text": "¿Cómo calificarías tu ambiente laboral?",
+    "required": true,
+    "display": {
+      "visualType": "SCALE",
+      "scaleConfig": {
+        "min": 1,
+        "max": 5,
+        "icons": "EMOJI"
+      }
+    },
+    "logic": {
+      "dependsOn": "q2",
+      "showWhen": "Sí"
+    },
+    "options": ["Excelente", "Bueno", "Regular", "Malo"]
+  }
+}
+,
+{
+  "collection": "responses",
+  "schema": {
+    "_id": "responseId",
+    "surveyId": "surveyId",
+    "submittedAt": "2025-08-02T14:33:00Z",
+    "answers": [
+      {
+        "questionId": "q1",
+        "answer": "Bueno"
+      },
+      {
+        "questionId": "q5",
+        "answer": {
+          "fileUrl": "s3://bucket/evidencias/archivo.pdf"
+        }
+      }
+    ]
+  }
+}
+,
+{
+  "collection": "analytics",
+  "schema": {
+    "_id": "analyticsId",
+    "surveyId": "surveyId",
+    "overview": {
+      "completionRate": 0.75,
+      "averageTimeMinutes": 15,
+      "abandonmentPoints": ["q5"]
+    },
+    "questionAnalytics": [{
+      "questionId": "q1",
+      "distribution": {
+        "Excelente": 45,
+        "Bueno": 65,
+        "Regular": 30,
+        "Malo": 10
+      }
+    }],
+    "versionComparison": {
+      "previousVersionId": "v1Id",
+      "changes": {
+        "completionRate": "+5%"
+      }
+    }
+  }
+}]
