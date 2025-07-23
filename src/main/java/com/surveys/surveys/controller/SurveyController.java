@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import com.surveys.surveys.model.Survey;
-import com.surveys.surveys.model.SurveyStatus;
+import com.surveys.surveys.enums.SurveyStatus;
 import com.surveys.surveys.model.Branding;
 import com.surveys.surveys.services.SurveyService;
 

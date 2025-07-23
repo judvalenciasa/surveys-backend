@@ -1,9 +1,10 @@
 package com.surveys.surveys.services;
 
 import com.surveys.surveys.model.Survey;
-import com.surveys.surveys.model.SurveyStatus;
+import com.surveys.surveys.enums.SurveyStatus;
 import com.surveys.surveys.model.Branding;
 import com.surveys.surveys.model.Question;
+
 import java.util.List;
 import java.util.Optional;
 

@@ -1,7 +1,8 @@
 package com.surveys.surveys.repository;
 
+import com.surveys.surveys.enums.SurveyStatus;
 import com.surveys.surveys.model.Survey;
-import com.surveys.surveys.model.SurveyStatus;
+
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import java.time.Instant;

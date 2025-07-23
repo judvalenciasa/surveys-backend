@@ -2,6 +2,9 @@ package com.surveys.surveys.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.surveys.surveys.enums.SurveyStatus;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.ArrayList;

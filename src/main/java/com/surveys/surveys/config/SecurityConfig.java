@@ -66,9 +66,45 @@ public class SecurityConfig {
             .sessionManagement(session -> 
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // Rutas públicas
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                
+                // Rutas para administración de encuestas (solo ADMIN)
+                .requestMatchers(
+                    "/api/surveys/create",
+                    "/api/surveys/*/update",
+                    "/api/surveys/*/delete",
+                    "/api/surveys/*/publish",
+                    "/api/surveys/*/close",
+                    "/api/surveys/*/questions/**",
+                    "/api/surveys/templates/**",
+                    "/api/surveys/*/branding/**",
+                    "/api/surveys/*/schedule/**"
+                ).hasRole("ADMIN")
+                
+                // Rutas para empleados
+                .requestMatchers(
+                    "/api/surveys/employee/**",
+                    "/api/responses/employee/**"
+                ).hasAnyRole("ADMIN", "EMPLOYEE")
+                
+                // Rutas para responder encuestas
+                .requestMatchers(
+                    "/api/surveys/*/respond",
+                    "/api/responses/submit"
+                ).hasAnyRole("ADMIN", "EMPLOYEE", "USER")
+                
+                // Rutas para análisis y reportes
+                .requestMatchers("/api/analytics/**").hasRole("ADMIN")
+                
+                // Rutas para ver encuestas publicadas
+                .requestMatchers(
+                    "/api/surveys/published",
+                    "/api/surveys/*/view"
+                ).authenticated()
+                
+                // Cualquier otra ruta requiere autenticación
                 .anyRequest().authenticated())
             .authenticationProvider(authenticationProvider)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

@@ -1,9 +1,9 @@
 package com.surveys.surveys.servicesimpl;
 
 import com.surveys.surveys.model.Survey;
-import com.surveys.surveys.model.SurveyStatus;
 import com.surveys.surveys.repository.SurveyRepository;
 import com.surveys.surveys.services.SurveyService;
+import com.surveys.surveys.enums.SurveyStatus;
 import com.surveys.surveys.model.Branding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
