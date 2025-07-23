@@ -124,4 +124,10 @@ public interface SurveyRepository extends MongoRepository<Survey, String> {
      * @return lista de encuestas que cumplen los criterios
      */
     List<Survey> findByNameContainingIgnoreCaseAndStatus(String name, SurveyStatus status);
+
+    // Agregar métodos para buscar por versión anterior
+    Optional<Survey> findByPreviousVersionId(String previousVersionId);
+
+    // Agregar métodos para búsqueda de preguntas si es necesario
+    List<Survey> findByQuestionsNotEmpty();
 }

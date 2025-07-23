@@ -3,6 +3,8 @@ package com.surveys.surveys.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.Instant;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Representa una encuesta en el sistema.
@@ -35,12 +37,15 @@ public class Survey {
     private boolean isTemplate;
     private String adminId;
     private Branding branding;
+    private String previousVersionId;
+    private List<Question> questions;
 
     public Survey() {
         this.createdAt = Instant.now();
         this.version = 1;
         this.isTemplate = false;
         this.status = SurveyStatus.CREADA;
+        this.questions = new ArrayList<>();
     }
 
     // Getters y Setters
@@ -77,4 +82,13 @@ public class Survey {
     public Branding getBranding() { return branding; }
     public void setBranding(Branding branding) { this.branding = branding; }
 
+    public String getPreviousVersionId() { return previousVersionId; }
+    public void setPreviousVersionId(String previousVersionId) {
+        this.previousVersionId = previousVersionId;
+    }
+
+    public List<Question> getQuestions() { return questions; }
+    public void setQuestions(List<Question> questions) {
+        this.questions = questions;
+    }
 }

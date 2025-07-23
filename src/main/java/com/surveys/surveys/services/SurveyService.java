@@ -3,6 +3,7 @@ package com.surveys.surveys.services;
 import com.surveys.surveys.model.Survey;
 import com.surveys.surveys.model.SurveyStatus;
 import com.surveys.surveys.model.Branding;
+import com.surveys.surveys.model.Question;
 import java.util.List;
 import java.util.Optional;
 
@@ -120,4 +121,48 @@ public interface SurveyService {
      * @return Optional con la encuesta actualizada si se encontró
      */
     Optional<Survey> updateBranding(String id, Branding branding);
+
+    /**
+     * Agrega una pregunta a una encuesta existente.
+     *
+     * @param surveyId identificador de la encuesta
+     * @param question la pregunta a agregar
+     * @return Optional con la encuesta actualizada si se encontró
+     */
+    Optional<Survey> addQuestion(String surveyId, Question question);
+
+    /**
+     * Elimina una pregunta de una encuesta existente.
+     *
+     * @param surveyId identificador de la encuesta
+     * @param questionId identificador de la pregunta a eliminar
+     * @return Optional con la encuesta actualizada si se encontró
+     */
+    Optional<Survey> removeQuestion(String surveyId, String questionId);
+
+    /**
+     * Actualiza una pregunta existente en una encuesta.
+     *
+     * @param surveyId identificador de la encuesta
+     * @param questionId identificador de la pregunta a actualizar
+     * @param question los nuevos datos de la pregunta
+     * @return Optional con la encuesta actualizada si se encontró
+     */
+    Optional<Survey> updateQuestion(String surveyId, String questionId, Question question);
+
+    /**
+     * Crea una nueva versión de una encuesta existente.
+     *
+     * @param surveyId identificador de la encuesta a duplicar
+     * @return Optional con la encuesta duplicada si se encontró
+     */
+    Optional<Survey> createNewVersion(String surveyId);
+
+    /**
+     * Obtiene el historial de versiones de una encuesta.
+     *
+     * @param originalSurveyId identificador de la encuesta original
+     * @return lista de encuestas que son versiones de la original
+     */
+    List<Survey> getSurveyVersionHistory(String originalSurveyId);
 }
