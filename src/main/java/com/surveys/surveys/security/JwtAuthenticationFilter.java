@@ -35,7 +35,7 @@ import java.io.IOException;
  * </ul>
  *
  * @author Juan David Valencia
- * @version 1.0
+ * @version 1.1
  * @since 2024-03-22
  * @see JwtService
  * @see SecurityContextHolder
@@ -52,39 +52,66 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return path.startsWith("/api/auth/") || path.startsWith("/api/public/");
+    }
+
+    @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
             
+        // Si la ruta debe ser ignorada, continuar con la cadena de filtros
+        if (shouldNotFilter(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         final String authHeader = request.getHeader("Authorization");
+        
+        // Si no hay header de autorización o no es del tipo Bearer, continuar
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
+            // Extraer y validar el token
             String jwt = authHeader.substring(7);
             String username = jwtService.extractUsername(jwt);
 
+            // Si hay un username y no hay autenticación previa
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 
+                // Validar el token
                 if (jwtService.isTokenValid(jwt, userDetails)) {
+                    // Crear el token de autenticación
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
                         userDetails.getAuthorities()
                     );
                     
+                    // Establecer los detalles de la autenticación
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    
+                    // Establecer la autenticación en el contexto de seguridad
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
+            
+            // Continuar con la cadena de filtros
             filterChain.doFilter(request, response);
+            
         } catch (Exception e) {
+            // En caso de error, enviar respuesta de no autorizado
+            SecurityContextHolder.clearContext();
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Token inválido o expirado");
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Token inválido o expirado\"}");
         }
     }
 } 
