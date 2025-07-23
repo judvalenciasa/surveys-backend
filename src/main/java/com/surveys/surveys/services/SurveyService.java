@@ -8,6 +8,7 @@ import com.surveys.surveys.model.Question;
 import java.util.List;
 import java.util.Optional;
 
+
 /**
  * Define las operaciones disponibles para la gestión de encuestas.
  * Esta interfaz proporciona los métodos necesarios para crear, leer,
@@ -104,15 +105,7 @@ public interface SurveyService {
      */
     Optional<Survey> duplicateSurvey(String id);
 
-    /**
-     * Actualiza la fecha de programación de una encuesta.
-     *
-     * @param id identificador de la encuesta
-     * @param scheduledOpen fecha de apertura programada (ej: "2024-03-23T10:00:00")
-     * @param scheduledClose fecha de cierre programada (ej: "2024-03-23T18:00:00")
-     * @return Optional con la encuesta actualizada si se encontró
-     */
-    Optional<Survey> updateSchedule(String id, String scheduledOpen, String scheduledClose);
+
 
     /**
      * Actualiza la configuración de branding de una encuesta.
@@ -166,4 +159,6 @@ public interface SurveyService {
      * @return lista de encuestas que son versiones de la original
      */
     List<Survey> getSurveyVersionHistory(String originalSurveyId);
+
+
 }

@@ -202,23 +202,7 @@ public class SurveyController {
         return ResponseEntity.ok(templates);
     }
 
-    /**
-     * Actualiza la programación de una encuesta.
-     *
-     * @param id identificador de la encuesta
-     * @param scheduledOpen fecha y hora de apertura en formato ISO-8601
-     * @param scheduledClose fecha y hora de cierre en formato ISO-8601
-     * @return ResponseEntity con la encuesta actualizada, o 404 si no se encuentra
-     */
-    @PatchMapping("/{id}/schedule")
-    public ResponseEntity<Survey> updateSchedule(
-            @PathVariable String id,
-            @RequestParam String scheduledOpen,
-            @RequestParam String scheduledClose) {
-        return this.surveyService.updateSchedule(id, scheduledOpen, scheduledClose)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
-    }
+   
 
     /**
      * Actualiza la configuración visual de una encuesta.

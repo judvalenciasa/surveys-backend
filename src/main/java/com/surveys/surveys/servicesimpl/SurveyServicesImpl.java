@@ -7,7 +7,6 @@ import com.surveys.surveys.enums.SurveyStatus;
 import com.surveys.surveys.model.Branding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,6 +41,7 @@ public class SurveyServicesImpl implements SurveyService {
     @Autowired
     private SurveyRepository surveyRepository;
 
+
     /**
      * {@inheritDoc}
      * 
@@ -54,7 +54,8 @@ public class SurveyServicesImpl implements SurveyService {
         if (survey == null) {
             throw new IllegalArgumentException("La encuesta no puede ser null");
         }
-        return surveyRepository.save(survey);
+        Survey savedSurvey = surveyRepository.save(survey);
+        return savedSurvey;
     }
 
     /**
@@ -194,23 +195,6 @@ public class SurveyServicesImpl implements SurveyService {
             });
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * <p>Esta implementación valida y parsea las fechas proporcionadas
-     * antes de actualizarlas en la encuesta.
-     *
-     * @throws DateTimeParseException si el formato de las fechas no es válido
-     */
-    @Override
-    public Optional<Survey> updateSchedule(String id, String scheduledOpen, String scheduledClose) {
-        return surveyRepository.findById(id)
-            .map(survey -> {
-                survey.setScheduledOpen(Instant.parse(scheduledOpen));
-                survey.setScheduledClose(Instant.parse(scheduledClose));
-                return surveyRepository.save(survey);
-            });
-    }
 
     /** {@inheritDoc} */
     @Override
@@ -326,4 +310,6 @@ public class SurveyServicesImpl implements SurveyService {
         
         return versions;
     }
+
+  
 }

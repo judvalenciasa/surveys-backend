@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.repository.Query;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.stereotype.Repository;
 
 /**
  * Repositorio para la gestión de encuestas en MongoDB.
@@ -26,6 +27,7 @@ import java.util.Optional;
  * @version 1.0
  * @since 2025-07-22
  */
+@Repository
 public interface SurveyRepository extends MongoRepository<Survey, String> {
 
     /**
@@ -126,9 +128,28 @@ public interface SurveyRepository extends MongoRepository<Survey, String> {
      */
     List<Survey> findByNameContainingIgnoreCaseAndStatus(String name, SurveyStatus status);
 
-    // Agregar métodos para buscar por versión anterior
+    /**
+     * Busca una encuesta que sea versión de otra encuesta.
+     *
+     * @param previousVersionId identificador de la versión anterior
+     * @return Optional con la encuesta si se encuentra
+     */
     Optional<Survey> findByPreviousVersionId(String previousVersionId);
 
-    // Agregar métodos para búsqueda de preguntas si es necesario
+    /**
+     * Busca todas las encuestas que tengan al menos una pregunta.
+     *
+     * @return lista de encuestas que contienen preguntas
+     */
     List<Survey> findByQuestionsNotEmpty();
+
+    /**
+     * Busca encuestas que deben cerrarse basado en su fecha programada de cierre y estado.
+     *
+     * @param date fecha límite para el cierre programado
+     * @param status estado actual de las encuestas a buscar
+     * @return lista de encuestas que cumplen los criterios
+     */
+    @Query("{'scheduledClose': {$lte: ?0}, 'status': ?1}")
+    List<Survey> findByScheduledCloseBeforeAndStatus(Instant date, SurveyStatus status);
 }
