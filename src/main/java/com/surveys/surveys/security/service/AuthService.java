@@ -9,12 +9,15 @@ import com.surveys.surveys.security.JwtService;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Date;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Servicio que maneja la autenticación y registro de usuarios.
@@ -71,13 +74,11 @@ public class AuthService {
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-         1}+{´poiu7y6t348k0{
-            +´'0ñ9l 6h5g4fe we3r4nm
-         }}
+         
         // Asignar roles
-        Set<String> roles = new HashSet<>(); // This line was removed as per the new_code
-        roles.add("USER"); // This line wa*--*s removed as per the new_code
-        user.setRoles(roles); // This line was removed as per the new_code
+        Set<String> roles = new HashSet<>();
+        roles.add("USER");
+        user.setRoles(roles);
 
         // Guardar usuario
         try {
@@ -122,9 +123,29 @@ public class AuthService {
         throw new RuntimeException("Refresh token inválido");
     }
 
+    @Transactional
     public void logout(String token) {
-        // Implementar lógica de logout si es necesario
-        // Por ejemplo, agregar el token a una lista negra
+        try {
+            // 1. Validar que el token sea válido
+            String username = jwtService.extractUsername(token);
+            User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            if (!jwtService.isTokenValid(token, user)) {
+                throw new RuntimeException("Token inválido");
+            }
+
+            // 2. Actualizar la versión del token del usuario
+            // Esto invalidará todos los tokens existentes
+            user.setLastLogout(new Date());
+            userRepository.save(user);
+
+            // 3. Limpiar el contexto de seguridad
+            SecurityContextHolder.clearContext();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error en el proceso de logout: " + e.getMessage());
+        }
     }
 
     public boolean validateToken(String token) {

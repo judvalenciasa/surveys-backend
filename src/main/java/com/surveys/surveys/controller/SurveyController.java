@@ -9,6 +9,11 @@ import com.surveys.surveys.model.Survey;
 import com.surveys.surveys.enums.SurveyStatus;
 import com.surveys.surveys.model.Branding;
 import com.surveys.surveys.services.SurveyService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.surveys.surveys.model.User;
+import java.time.Instant;
+import java.util.ArrayList;
 
 /**
  * Controlador REST que maneja las operaciones CRUD y acciones específicas para encuestas.
@@ -43,9 +48,33 @@ public class SurveyController {
      */
     @PostMapping
     public ResponseEntity<Survey> createSurvey(@RequestBody Survey survey) {
-        survey.setStatus(SurveyStatus.CREADA);
-        Survey savedSurvey = this.surveyService.saveSurvey(survey);
-        return new ResponseEntity<>(savedSurvey, HttpStatus.CREATED);
+        try {
+            // Obtener el usuario autenticado
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (!(authentication.getPrincipal() instanceof User)) {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            
+            User user = (User) authentication.getPrincipal();
+            
+            // Establecer los valores iniciales
+            survey.setAdminId(user.getId());
+            survey.setStatus(SurveyStatus.CREADA);
+            survey.setCreatedAt(Instant.now());
+            survey.setModifiedAt(Instant.now());
+            survey.setVersion(1);
+            survey.setTemplate(false);
+            
+            if (survey.getQuestions() == null) {
+                survey.setQuestions(new ArrayList<>());
+            }
+            
+            Survey savedSurvey = this.surveyService.saveSurvey(survey);
+            return new ResponseEntity<>(savedSurvey, HttpStatus.CREATED);
+            
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**

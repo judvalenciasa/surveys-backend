@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.Date;
 
 /**
  * Representa un usuario en el sistema.
@@ -47,6 +48,8 @@ public class User implements UserDetails {
     private UserMetadata metadata;
     
     private boolean active = true;
+
+    private Date lastLogout;
 
     // Clase interna para manejar los metadatos
     public static class UserMetadata {
@@ -204,5 +207,13 @@ public class User implements UserDetails {
     
     public void setActive(boolean active) { 
         this.active = active; 
+    }
+
+    public Date getLastLogout() {
+        return lastLogout;
+    }
+    
+    public void setLastLogout(Date lastLogout) {
+        this.lastLogout = lastLogout;
     }
 } 

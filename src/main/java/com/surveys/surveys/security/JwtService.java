@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import com.surveys.surveys.model.User;
 
 /**
  * Servicio que maneja la generación y validación de tokens JWT (JSON Web Token).
@@ -66,8 +67,25 @@ public class JwtService {
      * @return true si el token es válido
      */
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        try {
+            final String username = extractUsername(token);
+            
+            // Verificar si el token fue emitido antes del último logout
+            if (userDetails instanceof User) {
+                User user = (User) userDetails;
+                Date lastLogout = user.getLastLogout();
+                Date tokenIssuedAt = extractClaim(token, Claims::getIssuedAt);
+                
+                if (lastLogout != null && tokenIssuedAt != null && 
+                    tokenIssuedAt.before(lastLogout)) {
+                    return false;
+                }
+            }
+            
+            return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
