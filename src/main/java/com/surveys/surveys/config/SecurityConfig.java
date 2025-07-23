@@ -72,15 +72,15 @@ public class SecurityConfig {
                 
                 // Rutas para administración de encuestas (solo ADMIN)
                 .requestMatchers(
-                    "/api/surveys/create",
-                    "/api/surveys/*/update",
-                    "/api/surveys/*/delete",
-                    "/api/surveys/*/publish",
-                    "/api/surveys/*/close",
-                    "/api/surveys/*/questions/**",
+                    "/api/surveys",                                    // POST
+                    "/api/surveys/{id}",                              // GET, PUT, DELETE
+                    "/api/surveys/{surveyId}/questions",              // POST, GET
+                    "/api/surveys/{surveyId}/questions/{questionId}", // GET, PUT, DELETE
+                    "/api/surveys/{id}/publish",
+                    "/api/surveys/{id}/close",
                     "/api/surveys/templates/**",
-                    "/api/surveys/*/branding/**",
-                    "/api/surveys/*/schedule/**"
+                    "/api/surveys/{id}/branding",
+                    "/api/surveys/{id}/schedule"
                 ).hasRole("ADMIN")
                 
                 // Rutas para empleados

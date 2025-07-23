@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.surveys.surveys.model.User;
 import java.time.Instant;
 import java.util.ArrayList;
+import com.surveys.surveys.model.Question;
 
 /**
  * Controlador REST que maneja las operaciones CRUD y acciones específicas para encuestas.
@@ -233,5 +234,108 @@ public class SurveyController {
         return this.surveyService.updateBranding(id, branding)
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Agrega una nueva pregunta a una encuesta existente.
+     *
+     * @param surveyId ID de la encuesta
+     * @param question pregunta a agregar
+     * @return ResponseEntity con la encuesta actualizada
+     */
+    @PostMapping("/{surveyId}/questions")
+    public ResponseEntity<Survey> addQuestion(
+            @PathVariable String surveyId,
+            @RequestBody Question question) {
+        try {
+            return surveyService.addQuestion(surveyId, question)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Actualiza una pregunta existente en una encuesta.
+     *
+     * @param surveyId ID de la encuesta
+     * @param questionId ID de la pregunta
+     * @param question nueva información de la pregunta
+     * @return ResponseEntity con la encuesta actualizada
+     */
+    @PutMapping("/{surveyId}/questions/{questionId}")
+    public ResponseEntity<Survey> updateQuestion(
+            @PathVariable String surveyId,
+            @PathVariable String questionId,
+            @RequestBody Question question) {
+        try {
+            return surveyService.updateQuestion(surveyId, questionId, question)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Elimina una pregunta de una encuesta.
+     *
+     * @param surveyId ID de la encuesta
+     * @param questionId ID de la pregunta
+     * @return ResponseEntity sin contenido
+     */
+    @DeleteMapping("/{surveyId}/questions/{questionId}")
+    public ResponseEntity<Void> removeQuestion(
+            @PathVariable String surveyId,
+            @PathVariable String questionId) {
+        try {
+            return surveyService.removeQuestion(surveyId, questionId)
+                    .map(s -> ResponseEntity.ok().<Void>build())
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Obtiene todas las preguntas de una encuesta.
+     *
+     * @param surveyId ID de la encuesta
+     * @return ResponseEntity con la lista de preguntas
+     */
+    @GetMapping("/{surveyId}/questions")
+    public ResponseEntity<List<Question>> getQuestions(@PathVariable String surveyId) {
+        try {
+            return surveyService.getSurveyById(surveyId)
+                    .map(survey -> ResponseEntity.ok(survey.getQuestions()))
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Obtiene una pregunta específica de una encuesta.
+     *
+     * @param surveyId ID de la encuesta
+     * @param questionId ID de la pregunta
+     * @return ResponseEntity con la pregunta
+     */
+    @GetMapping("/{surveyId}/questions/{questionId}")
+    public ResponseEntity<Question> getQuestionById(
+            @PathVariable String surveyId,
+            @PathVariable String questionId) {
+        try {
+            return surveyService.getSurveyById(surveyId)
+                    .map(survey -> survey.getQuestions().stream()
+                            .filter(q -> q.getId().equals(questionId))
+                            .findFirst()
+                            .map(ResponseEntity::ok)
+                            .orElse(ResponseEntity.notFound().build()))
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
