@@ -6,6 +6,10 @@ import com.surveys.surveys.model.User;
 import com.surveys.surveys.repository.UserRepository;
 import com.surveys.surveys.security.dto.AuthResponse;
 import com.surveys.surveys.security.JwtService;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -67,11 +71,13 @@ public class AuthService {
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        
+         1}+{´poiu7y6t348k0{
+            +´'0ñ9l 6h5g4fe we3r4nm
+         }}
         // Asignar roles
-        // Set<String> roles = new HashSet<>(); // This line was removed as per the new_code
-        // roles.add("USER"); // This line was removed as per the new_code
-        // user.setRoles(roles); // This line was removed as per the new_code
+        Set<String> roles = new HashSet<>(); // This line was removed as per the new_code
+        roles.add("USER"); // This line wa*--*s removed as per the new_code
+        user.setRoles(roles); // This line was removed as per the new_code
 
         // Guardar usuario
         try {
