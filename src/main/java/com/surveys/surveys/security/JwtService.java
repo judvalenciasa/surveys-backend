@@ -40,33 +40,14 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private long jwtExpiration;
 
-    /**
-     * Extrae el nombre de usuario del token JWT.
-     *
-     * @param token token JWT
-     * @return nombre de usuario almacenado en el token
-     */
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    /**
-     * Genera un token JWT para un usuario.
-     *
-     * @param userDetails detalles del usuario
-     * @return token JWT generado
-     */
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
 
-    /**
-     * Genera un token JWT con claims adicionales.
-     *
-     * @param extraClaims claims adicionales para incluir en el token
-     * @param userDetails detalles del usuario
-     * @return token JWT generado
-     */
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder()
                 .setClaims(extraClaims)

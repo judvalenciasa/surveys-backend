@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,41 +16,70 @@ import java.util.stream.Collectors;
  * Representa un usuario en el sistema.
  * Esta clase implementa UserDetails para la integración con Spring Security.
  * Los usuarios se almacenan en MongoDB en la colección "users".
- * 
- * @author Juan David Valencia
- * @version 1.0
- * @since 2025-07-22
  */
 @Document(collection = "users")
 public class User implements UserDetails {
     
-    /** Identificador único del usuario generado por MongoDB */
     @Id
     private String id;
     
-    /** Nombre de usuario único en el sistema */
     @Indexed(unique = true)
     private String username;
     
-    /** Contraseña encriptada del usuario */
     private String password;
     
-    /** Correo electrónico único del usuario */
     @Indexed(unique = true)
     private String email;
     
-    /** Roles asignados al usuario */
     private Set<String> roles = new HashSet<>();
     
-    /** Estado de la cuenta del usuario */
+    private String firstName;
+    
+    private String lastName;
+    
+    @Indexed
+    private String employeeId;
+    
+    private String departmentId;
+    
+    private String position;
+    
+    private UserMetadata metadata;
+    
     private boolean active = true;
 
-    /**
-     * Obtiene las autoridades (roles) del usuario.
-     * Convierte los roles almacenados en objetos SimpleGrantedAuthority.
-     * 
-     * @return Colección de autoridades del usuario
-     */
+    // Clase interna para manejar los metadatos
+    public static class UserMetadata {
+        private Instant lastLogin;
+        private Instant lastSurveyCompleted;
+        private int surveysCompleted;
+
+        // Getters y Setters
+        public Instant getLastLogin() {
+            return lastLogin;
+        }
+
+        public void setLastLogin(Instant lastLogin) {
+            this.lastLogin = lastLogin;
+        }
+
+        public Instant getLastSurveyCompleted() {
+            return lastSurveyCompleted;
+        }
+
+        public void setLastSurveyCompleted(Instant lastSurveyCompleted) {
+            this.lastSurveyCompleted = lastSurveyCompleted;
+        }
+
+        public int getSurveysCompleted() {
+            return surveysCompleted;
+        }
+
+        public void setSurveysCompleted(int surveysCompleted) {
+            this.surveysCompleted = surveysCompleted;
+        }
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
@@ -88,18 +118,91 @@ public class User implements UserDetails {
     }
 
     // Getters y Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public String getId() { 
+        return id; 
+    }
+    
+    public void setId(String id) { 
+        this.id = id; 
+    }
 
-    public void setUsername(String username) { this.username = username; }
-    public void setPassword(String password) { this.password = password; }
+    public void setUsername(String username) { 
+        this.username = username; 
+    }
+    
+    public void setPassword(String password) { 
+        this.password = password; 
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getEmail() { 
+        return email; 
+    }
+    
+    public void setEmail(String email) { 
+        this.email = email; 
+    }
 
-    public Set<String> getRoles() { return roles; }
-    public void setRoles(Set<String> roles) { this.roles = roles; }
+    public Set<String> getRoles() { 
+        return roles; 
+    }
+    
+    public void setRoles(Set<String> roles) { 
+        this.roles = roles; 
+    }
 
-    public boolean isActive() { return active; }
-    public void setActive(boolean active) { this.active = active; }
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(String employeeId) {
+        this.employeeId = employeeId;
+    }
+
+    public String getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(String departmentId) {
+        this.departmentId = departmentId;
+    }
+
+    public String getPosition() {
+        return position;
+    }
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
+    public UserMetadata getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(UserMetadata metadata) {
+        this.metadata = metadata;
+    }
+
+    public boolean isActive() { 
+        return active; 
+    }
+    
+    public void setActive(boolean active) { 
+        this.active = active; 
+    }
 } 
