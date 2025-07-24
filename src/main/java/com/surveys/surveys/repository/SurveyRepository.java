@@ -4,10 +4,7 @@ import com.surveys.surveys.enums.SurveyStatus;
 import com.surveys.surveys.model.Survey;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
-import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.stereotype.Repository;
 
 /**
