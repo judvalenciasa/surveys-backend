@@ -6,6 +6,10 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 import java.time.Instant;
 import java.util.Collection;
 import java.util.HashSet;
@@ -24,11 +28,14 @@ public class User implements UserDetails {
     @Id
     private String id;
     
+
     @Indexed(unique = true)
     private String username;
     
     private String password;
     
+    @NotBlank(message = "El email es obligatorio")
+    @Email(message = "El formato del email no es válido")
     @Indexed(unique = true)
     private String email;
     

@@ -219,6 +219,7 @@ public class SurveyServicesImpl implements SurveyService {
                 if (survey.getQuestions() == null) {
                     survey.setQuestions(new ArrayList<>());
                 }
+                
                 question.setOrder(survey.getQuestions().size() + 1);
                 survey.getQuestions().add(question);
                 return surveyRepository.save(survey);

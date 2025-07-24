@@ -17,16 +17,19 @@ import java.util.ArrayList;
 import com.surveys.surveys.model.Question;
 
 /**
- * Controlador REST que maneja las operaciones CRUD y acciones específicas para encuestas.
- * Proporciona endpoints para la gestión completa del ciclo de vida de las encuestas.
+ * Controlador REST que maneja las operaciones CRUD y acciones específicas para
+ * encuestas.
+ * Proporciona endpoints para la gestión completa del ciclo de vida de las
+ * encuestas.
  *
- * <p>Los endpoints base incluyen:
+ * <p>
+ * Los endpoints base incluyen:
  * <ul>
- *   <li>POST /api/surveys - Crear nueva encuesta</li>
- *   <li>GET /api/surveys - Listar encuestas</li>
- *   <li>GET /api/surveys/{id} - Obtener encuesta específica</li>
- *   <li>PUT /api/surveys/{id} - Actualizar encuesta</li>
- *   <li>DELETE /api/surveys/{id} - Eliminar encuesta</li>
+ * <li>POST /api/surveys - Crear nueva encuesta</li>
+ * <li>GET /api/surveys - Listar encuestas</li>
+ * <li>GET /api/surveys/{id} - Obtener encuesta específica</li>
+ * <li>PUT /api/surveys/{id} - Actualizar encuesta</li>
+ * <li>DELETE /api/surveys/{id} - Eliminar encuesta</li>
  * </ul>
  *
  * @author Juan David Valencia
@@ -36,7 +39,7 @@ import com.surveys.surveys.model.Question;
 @RestController
 @RequestMapping("/api/surveys")
 public class SurveyController {
-    
+
     @Autowired
     private SurveyService surveyService;
 
@@ -55,9 +58,9 @@ public class SurveyController {
             if (!(authentication.getPrincipal() instanceof User)) {
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
-            
+
             User user = (User) authentication.getPrincipal();
-            
+
             // Establecer los valores iniciales
             survey.setAdminId(user.getId());
             survey.setStatus(SurveyStatus.CREADA);
@@ -65,14 +68,21 @@ public class SurveyController {
             survey.setModifiedAt(Instant.now());
             survey.setVersion(1);
             survey.setTemplate(false);
-            
+
             if (survey.getQuestions() == null) {
                 survey.setQuestions(new ArrayList<>());
+            } else {
+                // Asignar IDs únicos a las preguntas si la lista no está vacía
+                for (Question question : survey.getQuestions()) {
+                    if (question.getId() == null || question.getId().isEmpty()) {
+                        question.setId(java.util.UUID.randomUUID().toString());
+                    }
+                }
             }
-            
+
             Survey savedSurvey = this.surveyService.saveSurvey(survey);
             return new ResponseEntity<>(savedSurvey, HttpStatus.CREATED);
-            
+
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -81,9 +91,10 @@ public class SurveyController {
     /**
      * Obtiene todas las encuestas con filtros opcionales.
      *
-     * @param status filtro por estado de la encuesta
+     * @param status     filtro por estado de la encuesta
      * @param isTemplate filtro para obtener solo plantillas
-     * @return ResponseEntity con la lista de encuestas que coinciden con los filtros
+     * @return ResponseEntity con la lista de encuestas que coinciden con los
+     *         filtros
      */
     @GetMapping
     public ResponseEntity<List<Survey>> getAllSurveys(
@@ -102,24 +113,24 @@ public class SurveyController {
     @GetMapping("/{id}")
     public ResponseEntity<Survey> getSurveyById(@PathVariable String id) {
         return this.surveyService.getSurveyById(id)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
      * Actualiza una encuesta existente.
      *
-     * @param id identificador de la encuesta a actualizar
+     * @param id     identificador de la encuesta a actualizar
      * @param survey nueva información de la encuesta
      * @return ResponseEntity con la encuesta actualizada, o 404 si no se encuentra
      */
     @PutMapping("/{id}")
     public ResponseEntity<Survey> updateSurvey(
-            @PathVariable String id, 
+            @PathVariable String id,
             @RequestBody Survey survey) {
         return this.surveyService.updateSurvey(id, survey)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -139,9 +150,10 @@ public class SurveyController {
     /**
      * Busca encuestas por nombre y/o adminId.
      *
-     * @param name nombre parcial de la encuesta (opcional)
+     * @param name    nombre parcial de la encuesta (opcional)
      * @param adminId ID del administrador (opcional)
-     * @return ResponseEntity con la lista de encuestas que coinciden con los criterios
+     * @return ResponseEntity con la lista de encuestas que coinciden con los
+     *         criterios
      */
     @GetMapping("/search")
     public ResponseEntity<List<Survey>> searchSurveys(
@@ -160,8 +172,8 @@ public class SurveyController {
     @PostMapping("/{id}/publish")
     public ResponseEntity<Survey> publishSurvey(@PathVariable String id) {
         return this.surveyService.publishSurvey(id)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -173,8 +185,8 @@ public class SurveyController {
     @PostMapping("/{id}/close")
     public ResponseEntity<Survey> closeSurvey(@PathVariable String id) {
         return this.surveyService.closeSurvey(id)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -182,13 +194,14 @@ public class SurveyController {
      * Crea una nueva encuesta con los mismos datos pero diferente ID.
      *
      * @param id identificador de la encuesta a duplicar
-     * @return ResponseEntity con la nueva encuesta y código 201, o 404 si no se encuentra la original
+     * @return ResponseEntity con la nueva encuesta y código 201, o 404 si no se
+     *         encuentra la original
      */
     @PostMapping("/{id}/duplicate")
     public ResponseEntity<Survey> duplicateSurvey(@PathVariable String id) {
         return this.surveyService.duplicateSurvey(id)
-            .map(survey -> new ResponseEntity<>(survey, HttpStatus.CREATED))
-            .orElse(ResponseEntity.notFound().build());
+                .map(survey -> new ResponseEntity<>(survey, HttpStatus.CREATED))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -202,12 +215,10 @@ public class SurveyController {
         return ResponseEntity.ok(templates);
     }
 
-   
-
     /**
      * Actualiza la configuración visual de una encuesta.
      *
-     * @param id identificador de la encuesta
+     * @param id       identificador de la encuesta
      * @param branding nueva configuración visual
      * @return ResponseEntity con la encuesta actualizada, o 404 si no se encuentra
      */
@@ -216,8 +227,8 @@ public class SurveyController {
             @PathVariable String id,
             @RequestBody Branding branding) {
         return this.surveyService.updateBranding(id, branding)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -232,6 +243,11 @@ public class SurveyController {
             @PathVariable String surveyId,
             @RequestBody Question question) {
         try {
+            // Generar ID único automáticamente si no lo tiene
+            if (question.getId() == null || question.getId().isEmpty()) {
+                question.setId(java.util.UUID.randomUUID().toString());
+            }
+
             return surveyService.addQuestion(surveyId, question)
                     .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
@@ -243,9 +259,9 @@ public class SurveyController {
     /**
      * Actualiza una pregunta existente en una encuesta.
      *
-     * @param surveyId ID de la encuesta
+     * @param surveyId   ID de la encuesta
      * @param questionId ID de la pregunta
-     * @param question nueva información de la pregunta
+     * @param question   nueva información de la pregunta
      * @return ResponseEntity con la encuesta actualizada
      */
     @PutMapping("/{surveyId}/questions/{questionId}")
@@ -265,7 +281,7 @@ public class SurveyController {
     /**
      * Elimina una pregunta de una encuesta.
      *
-     * @param surveyId ID de la encuesta
+     * @param surveyId   ID de la encuesta
      * @param questionId ID de la pregunta
      * @return ResponseEntity sin contenido
      */
@@ -302,7 +318,7 @@ public class SurveyController {
     /**
      * Obtiene una pregunta específica de una encuesta.
      *
-     * @param surveyId ID de la encuesta
+     * @param surveyId   ID de la encuesta
      * @param questionId ID de la pregunta
      * @return ResponseEntity con la pregunta
      */

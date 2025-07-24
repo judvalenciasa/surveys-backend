@@ -3,6 +3,11 @@ package com.surveys.surveys.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 /**
  * Representa una pregunta dentro de una encuesta.
  * Esta clase define la estructura y propiedades de las preguntas
@@ -16,17 +21,26 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Question {
     @Id
     private String id;
+
+    @NotBlank(message = "El texto de la pregunta es obligatorio")
+    @Size(min = 2, max = 500, message = "El texto debe tener entre 5 y 500 caracteres")
     private String text;
-    private String type;        // MULTIPLE_CHOICE, TEXT, RATING, etc.
-    private boolean required;
-    private Object options;     // Puede ser una lista de opciones para preguntas de opción múltiple
-    private Integer order;      // Orden de la pregunta en la encuesta
+
+    @NotNull(message = "El tipo de pregunta es obligatorio")
+    private String type; 
     
-    // Constructor por defecto
+    @NotNull(message = "El campo required no puede ser null")
+    private boolean required;
+    
+    private Object options;
+    
+    @Min(value = 1, message = "El orden debe ser mayor a 0")
+    private Integer order;      
+    
     public Question() {
+        this.required = false;
     }
     
-    // Constructor con parámetros principales
     public Question(String text, String type, boolean required) {
         this.text = text;
         this.type = type;
