@@ -148,20 +148,4 @@ public class AuthService {
         }
     }
 
-    public boolean validateToken(String token) {
-        try {
-            String username = jwtService.extractUsername(token);
-            User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-            return jwtService.isTokenValid(token, user);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public User getCurrentUser(String token) {
-        String username = jwtService.extractUsername(token);
-        return userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-    }
 } 

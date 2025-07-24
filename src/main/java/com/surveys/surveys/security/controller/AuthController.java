@@ -50,45 +50,12 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refreshToken(
-            @RequestHeader("Authorization") String refreshToken) {
-        if (refreshToken != null && refreshToken.startsWith("Bearer ")) {
-            return ResponseEntity.ok(
-                authService.refreshToken(refreshToken.substring(7))
-            );
-        }
-        return ResponseEntity.badRequest().build();
-    }
-
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(
             @RequestHeader("Authorization") String token) {
         if (token != null && token.startsWith("Bearer ")) {
             authService.logout(token.substring(7));
             return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.badRequest().build();
-    }
-
-    @GetMapping("/validate")
-    public ResponseEntity<Boolean> validateToken(
-            @RequestHeader("Authorization") String token) {
-        if (token != null && token.startsWith("Bearer ")) {
-            return ResponseEntity.ok(
-                authService.validateToken(token.substring(7))
-            );
-        }
-        return ResponseEntity.badRequest().build();
-    }
-
-    @GetMapping("/me")
-    public ResponseEntity<?> getCurrentUser(
-            @RequestHeader("Authorization") String token) {
-        if (token != null && token.startsWith("Bearer ")) {
-            return ResponseEntity.ok(
-                authService.getCurrentUser(token.substring(7))
-            );
         }
         return ResponseEntity.badRequest().build();
     }

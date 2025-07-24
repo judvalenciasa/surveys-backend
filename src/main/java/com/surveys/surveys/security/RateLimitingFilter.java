@@ -16,10 +16,9 @@ import java.io.IOException;
  *
  * <p>Características:
  * <ul>
- *   <li>Límite de peticiones por segundo</li>
- *   <li>Control por IP</li>
- *   <li>Respuestas de error personalizadas</li>
- *   <li>Configuración flexible de límites</li>
+ *   <li>Permite ráfagas controladas de peticiones</li>
+ *   <li>Mantiene una tasa promedio sostenible</li>
+ *   <li>Implementación thread-safe para entornos concurrentes</li>
  * </ul>
  *
  * @author Juan David Valencia
@@ -36,6 +35,26 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         this.rateLimiter = RateLimiter.create(10.0);
     }
 
+    /**
+     * Evalúa y aplica el control de tasa para cada petición HTTP.
+     * 
+     * <p>Este método implementa el núcleo del filtro de rate limiting. Utiliza
+     * un enfoque no bloqueante para verificar la disponibilidad de tokens y
+     * determinar si la petición debe procesarse o rechazarse.
+     * 
+   
+     *
+     * @param request la petición HTTP entrante a evaluar para rate limiting
+     * @param response la respuesta HTTP que se configurará en caso de rechazo
+     * @param filterChain la cadena de filtros para continuar el procesamiento
+     *                   si la petición es aceptada
+     * @throws ServletException si ocurre un error en el procesamiento del servlet
+     * @throws IOException si ocurre un error de entrada/salida al escribir la respuesta
+     * @see RateLimiter#tryAcquire()
+     * @see HttpServletResponse#setStatus(int)
+     * @see HttpServletResponse#setContentType(String)
+     * @see FilterChain#doFilter(jakarta.servlet.ServletRequest, jakarta.servlet.ServletResponse)
+     */
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
