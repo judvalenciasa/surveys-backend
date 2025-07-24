@@ -13,18 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Manejador global de excepciones para la aplicación.
- * Proporciona un manejo centralizado de errores y respuestas consistentes.
- *
- * <p>Maneja los siguientes tipos de excepciones:
- * <ul>
- *   <li>Errores de autenticación (401)</li>
- *   <li>Errores de autorización (403)</li>
- *   <li>Recursos no encontrados (404)</li>
- *   <li>Errores de validación (400)</li>
- *   <li>Errores internos del servidor (500)</li>
- * </ul>
- *
+ * Manejador global de excepciones para respuestas consistentes.
+ * 
  * @author Juan David Valencia
  * @version 1.0
  * @since 2025-07-22
@@ -33,11 +23,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     /**
-     * Maneja errores de autenticación.
-     *
-     * @param ex excepción de credenciales inválidas
-     * @param request petición web
-     * @return respuesta con estado 401 y mensaje de error
+     * Maneja errores de autenticación (401).
      */
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
@@ -51,11 +37,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Maneja errores de autorización.
-     *
-     * @param ex excepción de acceso denegado
-     * @param request petición web
-     * @return respuesta con estado 403 y mensaje de error
+     * Maneja errores de autorización (403).
      */
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
@@ -69,11 +51,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Maneja errores de validación de datos.
-     *
-     * @param ex excepción de validación de argumentos
-     * @param request petición web
-     * @return respuesta con estado 400 y detalles de los errores de validación
+     * Maneja errores de validación de datos (400).
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -88,11 +66,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Maneja errores de recursos no encontrados.
-     *
-     * @param ex excepción de recurso no encontrado
-     * @param request petición web
-     * @return respuesta con estado 404 y mensaje de error
+     * Maneja recursos no encontrados (404).
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -106,11 +80,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Maneja errores de validación personalizados.
-     *
-     * @param ex excepción de validación
-     * @param request petición web
-     * @return respuesta con estado 400 y mensaje de error
+     * Maneja errores de validación personalizados (400).
      */
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -124,11 +94,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Maneja cualquier excepción no manejada específicamente.
-     *
-     * @param ex excepción general
-     * @param request petición web
-     * @return respuesta con estado 500 y mensaje de error
+     * Maneja excepciones no capturadas (500).
      */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

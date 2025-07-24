@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 
 /**
- * Clase que representa una respuesta de error estandarizada.
- * Esta clase se utiliza para enviar información detallada sobre errores al cliente.
- *
+ * Respuesta de error estandarizada para la API.
+ * 
  * @author Juan David Valencia
  * @version 1.0
  * @since 2025-07-22
@@ -21,9 +20,7 @@ public class ErrorResponse {
     private String path;
 
     /**
-     * Constructor para crear una respuesta de error.
-     *
-     * @param message mensaje de error
+     * Constructor básico.
      */
     public ErrorResponse(String message) {
         this.message = message;
@@ -31,11 +28,7 @@ public class ErrorResponse {
     }
 
     /**
-     * Constructor completo para crear una respuesta de error.
-     *
-     * @param message mensaje de error
-     * @param status código de estado HTTP
-     * @param path ruta de la petición que generó el error
+     * Constructor completo.
      */
     public ErrorResponse(String message, int status, String path) {
         this.message = message;

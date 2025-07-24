@@ -8,157 +8,92 @@ import com.surveys.surveys.model.Question;
 import java.util.List;
 import java.util.Optional;
 
-
 /**
- * Define las operaciones disponibles para la gestión de encuestas.
- * Esta interfaz proporciona los métodos necesarios para crear, leer,
- * actualizar y eliminar encuestas, así como funcionalidades específicas
- * como publicación y duplicación.
- *
- * @author TuNombre
+ * Servicio para gestión completa de encuestas.
+ * 
+ * @author Juan David Valencia
  * @version 1.0
- * @since 2024-03-22
+ * @since 2025-07-22
  */
 public interface SurveyService {
     
     /**
-     * Guarda una nueva encuesta o actualiza una existente.
-     *
-     * @param survey la encuesta a guardar
-     * @return la encuesta guardada con su ID asignado
+     * Guarda encuesta nueva o actualiza existente.
      */
     Survey saveSurvey(Survey survey);
 
     /**
-     * Obtiene una lista de encuestas filtrada por estado y tipo.
-     *
-     * @param status estado de las encuestas a buscar
-     * @param isTemplate si es true, busca solo plantillas
-     * @return lista de encuestas que coinciden con los criterios
+     * Obtiene encuestas filtradas por estado y tipo.
      */
     List<Survey> getSurveys(SurveyStatus status, Boolean isTemplate);
 
     /**
-     * Busca una encuesta por su identificador.
-     *
-     * @param id identificador de la encuesta
-     * @return Optional con la encuesta si existe
+     * Busca encuesta por ID.
      */
     Optional<Survey> getSurveyById(String id);
 
     /**
-     * Actualiza los datos de una encuesta existente.
-     *
-     * @param id identificador de la encuesta a actualizar
-     * @param survey los nuevos datos de la encuesta
-     * @return Optional con la encuesta actualizada si se encontró
+     * Actualiza datos de encuesta existente.
      */
     Optional<Survey> updateSurvey(String id, Survey survey);
 
     /**
-     * Elimina una encuesta por su identificador.
-     *
-     * @param id identificador de la encuesta a eliminar
-     * @return true si la encuesta se eliminó, false si no se encontró
+     * Elimina encuesta por ID.
      */
     boolean deleteSurvey(String id);
 
     /**
      * Busca encuestas por nombre y administrador.
-     *
-     * @param name nombre de la encuesta
-     * @param adminId identificador del administrador
-     * @return lista de encuestas que coinciden con los criterios
      */
     List<Survey> searchSurveys(String name, String adminId);
 
     /**
-     * Actualiza el estado de una encuesta.
-     *
-     * @param id identificador de la encuesta
-     * @param status nuevo estado de la encuesta
-     * @return Optional con la encuesta actualizada si se encontró
+     * Actualiza estado de encuesta.
      */
     Optional<Survey> updateSurveyStatus(String id, SurveyStatus status);
 
     /**
-     * Publica una encuesta, cambiando su estado a "Publicado".
-     *
-     * @param id identificador de la encuesta a publicar
-     * @return Optional con la encuesta publicada si se encontró
+     * Publica encuesta (cambia estado a PUBLICADA).
      */
     Optional<Survey> publishSurvey(String id);
 
     /**
-     * Cierra una encuesta, cambiando su estado a "Cerrado".
-     *
-     * @param id identificador de la encuesta a cerrar
-     * @return Optional con la encuesta cerrada si se encontró
+     * Cierra encuesta (cambia estado a CERRADA).
      */
     Optional<Survey> closeSurvey(String id);
 
     /**
-     * Duplica una encuesta existente.
-     *
-     * @param id identificador de la encuesta a duplicar
-     * @return Optional con la encuesta duplicada si se encontró
+     * Duplica encuesta existente.
      */
     Optional<Survey> duplicateSurvey(String id);
 
-
-
     /**
-     * Actualiza la configuración de branding de una encuesta.
-     *
-     * @param id identificador de la encuesta
-     * @param branding nueva configuración de branding
-     * @return Optional con la encuesta actualizada si se encontró
+     * Actualiza configuración de branding.
      */
     Optional<Survey> updateBranding(String id, Branding branding);
 
     /**
-     * Agrega una pregunta a una encuesta existente.
-     *
-     * @param surveyId identificador de la encuesta
-     * @param question la pregunta a agregar
-     * @return Optional con la encuesta actualizada si se encontró
+     * Agrega pregunta a encuesta.
      */
     Optional<Survey> addQuestion(String surveyId, Question question);
 
     /**
-     * Elimina una pregunta de una encuesta existente.
-     *
-     * @param surveyId identificador de la encuesta
-     * @param questionId identificador de la pregunta a eliminar
-     * @return Optional con la encuesta actualizada si se encontró
+     * Elimina pregunta de encuesta.
      */
     Optional<Survey> removeQuestion(String surveyId, String questionId);
 
     /**
-     * Actualiza una pregunta existente en una encuesta.
-     *
-     * @param surveyId identificador de la encuesta
-     * @param questionId identificador de la pregunta a actualizar
-     * @param question los nuevos datos de la pregunta
-     * @return Optional con la encuesta actualizada si se encontró
+     * Actualiza pregunta existente.
      */
     Optional<Survey> updateQuestion(String surveyId, String questionId, Question question);
 
     /**
-     * Crea una nueva versión de una encuesta existente.
-     *
-     * @param surveyId identificador de la encuesta a duplicar
-     * @return Optional con la encuesta duplicada si se encontró
+     * Crea nueva versión de encuesta.
      */
     Optional<Survey> createNewVersion(String surveyId);
 
     /**
-     * Obtiene el historial de versiones de una encuesta.
-     *
-     * @param originalSurveyId identificador de la encuesta original
-     * @return lista de encuestas que son versiones de la original
+     * Obtiene historial de versiones.
      */
     List<Survey> getSurveyVersionHistory(String originalSurveyId);
-
-
 }

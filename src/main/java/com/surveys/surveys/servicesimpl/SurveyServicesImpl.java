@@ -14,60 +14,26 @@ import com.surveys.surveys.model.Question;
 import java.util.ArrayList;
 
 /**
- * Implementación del servicio de gestión de encuestas.
- * Esta clase proporciona la implementación concreta de todas las operaciones
- * definidas en la interfaz {@link SurveyService}, utilizando MongoDB como
- * almacenamiento de datos.
+ * Implementación del servicio de encuestas con MongoDB.
  * 
- * <p>Las principales funcionalidades incluyen:
- * <ul>
- *   <li>Gestión del ciclo de vida completo de las encuestas</li>
- *   <li>Manejo de estados y programación</li>
- *   <li>Administración de preguntas</li>
- *   <li>Control de versiones</li>
- * </ul>
- *
- *
  * @author Juan David Valencia
  * @version 1.0
  * @since 2025-07-22
- * @see SurveyService
- * @see Survey
  */
 @Service
 public class SurveyServicesImpl implements SurveyService {
 
-    /** Repositorio para realizar operaciones CRUD con las encuestas en MongoDB */
     @Autowired
     private SurveyRepository surveyRepository;
 
-
-    /**
-     * {@inheritDoc}
-     * 
-     * <p>Esta implementación valida que la encuesta no sea null antes de guardarla.
-     *
-     * @throws IllegalArgumentException si la encuesta es null
-     */
     @Override
     public Survey saveSurvey(Survey survey) {
         if (survey == null) {
             throw new IllegalArgumentException("La encuesta no puede ser null");
         }
-        Survey savedSurvey = surveyRepository.save(survey);
-        return savedSurvey;
+        return surveyRepository.save(survey);
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * <p>Esta implementación permite filtrar por:
-     * <ul>
-     *   <li>Estado de la encuesta</li>
-     *   <li>Si es una plantilla o no</li>
-     * </ul>
-     * Si no se especifica ningún filtro, retorna todas las encuestas.
-     */
     @Override
     public List<Survey> getSurveys(SurveyStatus status, Boolean isTemplate) {
         if (status != null) {
@@ -78,18 +44,11 @@ public class SurveyServicesImpl implements SurveyService {
         return surveyRepository.findAll();
     }
 
-    /** {@inheritDoc} */
     @Override
     public Optional<Survey> getSurveyById(String id) {
         return surveyRepository.findById(id);
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * <p>Esta implementación preserva la fecha de creación original
-     * al actualizar una encuesta existente.
-     */
     @Override
     public Optional<Survey> updateSurvey(String id, Survey survey) {
         return surveyRepository.findById(id)
@@ -100,14 +59,6 @@ public class SurveyServicesImpl implements SurveyService {
             });
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * <p>Esta implementación verifica la existencia de la encuesta
-     * antes de intentar eliminarla.
-     *
-     * @return true si la encuesta fue eliminada, false si no existía
-     */
     @Override
     public boolean deleteSurvey(String id) {
         if (surveyRepository.existsById(id)) {
@@ -117,16 +68,6 @@ public class SurveyServicesImpl implements SurveyService {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * <p>Esta implementación permite buscar por:
-     * <ul>
-     *   <li>Nombre de la encuesta (búsqueda parcial insensible a mayúsculas)</li>
-     *   <li>ID del administrador</li>
-     *   <li>Combinación de ambos criterios</li>
-     * </ul>
-     */
     @Override
     public List<Survey> searchSurveys(String name, String adminId) {
         if (name != null && adminId != null) {
@@ -141,12 +82,6 @@ public class SurveyServicesImpl implements SurveyService {
         return surveyRepository.findAll();
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * <p>Esta implementación actualiza el estado de una encuesta
-     * manteniendo el resto de sus propiedades intactas.
-     */
     @Override
     public Optional<Survey> updateSurveyStatus(String id, SurveyStatus status) {
         return surveyRepository.findById(id)
@@ -156,32 +91,16 @@ public class SurveyServicesImpl implements SurveyService {
             });
     }
 
-    /** 
-     * {@inheritDoc}
-     * 
-     * <p>Esta implementación cambia el estado a {@link SurveyStatus#PUBLICADA}.
-     */
     @Override
     public Optional<Survey> publishSurvey(String id) {
         return updateSurveyStatus(id, SurveyStatus.PUBLICADA);
     }
 
-    /** 
-     * {@inheritDoc}
-     * 
-     * <p>Esta implementación cambia el estado a {@link SurveyStatus#CERRADA}.
-     */
     @Override
     public Optional<Survey> closeSurvey(String id) {
         return updateSurveyStatus(id, SurveyStatus.CERRADA);
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * <p>Esta implementación crea una copia exacta de la encuesta original,
-     * agregando " (Copia)" al nombre para distinguirla.
-     */
     @Override
     public Optional<Survey> duplicateSurvey(String id) {
         return surveyRepository.findById(id)
@@ -195,8 +114,6 @@ public class SurveyServicesImpl implements SurveyService {
             });
     }
 
-
-    /** {@inheritDoc} */
     @Override
     public Optional<Survey> updateBranding(String id, Branding branding) {
         return surveyRepository.findById(id)
@@ -206,12 +123,6 @@ public class SurveyServicesImpl implements SurveyService {
             });
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * <p>Esta implementación asigna automáticamente un orden
-     * a la nueva pregunta basado en la posición al final de la lista.
-     */
     @Override
     public Optional<Survey> addQuestion(String surveyId, Question question) {
         return surveyRepository.findById(surveyId)
@@ -226,7 +137,6 @@ public class SurveyServicesImpl implements SurveyService {
             });
     }
 
-    /** {@inheritDoc} */
     @Override
     public Optional<Survey> removeQuestion(String surveyId, String questionId) {
         return surveyRepository.findById(surveyId)
@@ -240,12 +150,6 @@ public class SurveyServicesImpl implements SurveyService {
             });
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * <p>Esta implementación mantiene el orden original de la pregunta
-     * al actualizarla.
-     */
     @Override
     public Optional<Survey> updateQuestion(String surveyId, String questionId, Question question) {
         return surveyRepository.findById(surveyId)
@@ -263,16 +167,6 @@ public class SurveyServicesImpl implements SurveyService {
             });
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * <p>Esta implementación crea una nueva versión manteniendo:
-     * <ul>
-     *   <li>Todas las preguntas</li>
-     *   <li>La configuración de branding</li>
-     *   <li>La referencia a la versión anterior</li>
-     * </ul>
-     */
     @Override
     public Optional<Survey> createNewVersion(String surveyId) {
         return surveyRepository.findById(surveyId)
@@ -288,12 +182,6 @@ public class SurveyServicesImpl implements SurveyService {
             });
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * <p>Esta implementación recorre recursivamente la cadena de versiones
-     * siguiendo los IDs de versiones anteriores hasta llegar a la primera versión.
-     */
     @Override
     public List<Survey> getSurveyVersionHistory(String originalSurveyId) {
         List<Survey> versions = new ArrayList<>();
@@ -311,6 +199,4 @@ public class SurveyServicesImpl implements SurveyService {
         
         return versions;
     }
-
-  
 }

@@ -18,13 +18,14 @@ import java.util.Arrays;
  * Configuración de seguridad de la aplicación.
  * Define la configuración de Spring Security, incluyendo:
  * <ul>
- *   <li>Filtros de seguridad</li>
- *   <li>Reglas de autorización</li>
- *   <li>Configuración de CORS y CSRF</li>
- *   <li>Manejo de sesiones</li>
+ * <li>Filtros de seguridad</li>
+ * <li>Reglas de autorización</li>
+ * <li>Configuración de CORS y CSRF</li>
+ * <li>Manejo de sesiones</li>
  * </ul>
  *
- * <p>Esta configuración utiliza JWT para la autenticación
+ * <p>
+ * Esta configuración utiliza JWT para la autenticación
  * y establece una política stateless para las sesiones.
  *
  * @author Juan David Valencia
@@ -41,7 +42,7 @@ public class SecurityConfig {
     /**
      * Constructor que inicializa los componentes de seguridad.
      *
-     * @param jwtAuthFilter filtro de autenticación JWT
+     * @param jwtAuthFilter          filtro de autenticación JWT
      * @param authenticationProvider proveedor de autenticación
      */
     public SecurityConfig(
@@ -61,60 +62,47 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .sessionManagement(session -> 
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                // ========================================
-                // RUTAS PÚBLICAS (Sin autenticación)
-                // ========================================
-                
-                // Autenticación
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/public/**").permitAll()
-                // 🌍 ENCUESTAS PÚBLICAS - Acceso sin autenticación
-                .requestMatchers(
-                    "/api/surveys/published",           
-                    "/api/surveys/*/view",              
-                    "/api/surveys/*/public"           
-                ).permitAll()
-                
-                .requestMatchers(
-                    "/api/surveys/*/respond",           // Responder encuesta específica
-                    "/api/responses/submit"            // Enviar respuesta
-                ).permitAll()
-                
-                // ========================================
-                // RUTAS DE ADMINISTRACIÓN (Solo ADMIN)
-                // ========================================
-                .requestMatchers(
-                    // Gestión completa de encuestas
-                    "/api/surveys",                                    // POST - Crear
-                    "/api/surveys/{id}",                              // GET, PUT, DELETE
-                    "/api/surveys/{surveyId}/questions",              // POST, GET - Preguntas
-                    "/api/surveys/{surveyId}/questions/{questionId}", // GET, PUT, DELETE
-                    "/api/surveys/{id}/publish",                      // POST - Publicar
-                    "/api/surveys/{id}/close",                        // POST - Cerrar
-                    "/api/surveys/templates/**",                      // Plantillas
-                    "/api/surveys/{id}/branding",                     // PATCH - Branding
-                    "/api/surveys/{id}/schedule",                     // POST - Programar
-                    "/api/surveys/{id}/version",                      // POST - Nueva versión
-                    "/api/surveys/{id}/versions",                     // GET - Historial
-                    "/api/surveys/search",                            // GET - Búsqueda admin
-                    
-                    // Gestión completa de respuestas (solo lectura/administración)
-                    "/api/responses",                                 // GET, POST - Admin
-                    "/api/responses/{id}",                           // GET, PUT, DELETE
-                    "/api/responses/survey/{surveyId}",              // GET - Por encuesta
-                    "/api/responses/date-range",                     // GET - Por fecha
-                    "/api/responses/survey/{surveyId}/date-range",   // GET - Combinado
-                    "/api/responses/survey/{surveyId}/count",        // GET - Contador
-                    "/api/responses/survey/{surveyId}/latest"        // GET - Últimas
-                ).hasRole("ADMIN")
-                .anyRequest().authenticated())
-            .authenticationProvider(authenticationProvider)
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(
+                                // Encuestas públicas
+                                "/api/surveys/published", // ✅ Ver encuestas publicadas
+                                "/api/surveys/*/view", // ✅ Ver encuesta específica
+
+                                // Responder encuestas
+                                "/api/responses/submit")
+                        .permitAll()
+
+                        // ========================================
+                        // RUTAS DE ADMINISTRACIÓN (Solo ADMIN)
+                        // ========================================
+                        .requestMatchers(
+                                // Gestión de encuestas
+                                "/api/surveys", // POST, GET - Admin
+                                "/api/surveys/{id}", // GET, PUT, DELETE - Admin
+                                "/api/surveys/search", // GET - Admin
+                                "/api/surveys/{id}/publish", // POST - Admin
+                                "/api/surveys/{id}/close", // POST - Admin
+                                "/api/surveys/{id}/duplicate", // POST - Admin
+                                "/api/surveys/templates/**", // GET - Admin
+                                "/api/surveys/{id}/branding", // PATCH - Admin
+                                "/api/surveys/{id}/version", // POST - Admin
+                                "/api/surveys/{id}/versions", // GET - Admin
+
+                                // Gestión de preguntas
+                                "/api/surveys/{surveyId}/questions/**", // Todas las operaciones
+
+                                // Gestión de respuestas (solo admin)
+                                "/api/responses", // GET - Ver todas
+                                "/api/responses/survey/{surveyId}" // GET - Por encuesta
+
+                        ).hasRole("ADMIN")
+                        .anyRequest().authenticated())
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -131,7 +119,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setExposedHeaders(Arrays.asList("Authorization"));
-        
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

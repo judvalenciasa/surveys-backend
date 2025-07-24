@@ -9,10 +9,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 /**
- * Representa una pregunta dentro de una encuesta.
- * Esta clase define la estructura y propiedades de las preguntas
- * que pueden ser incluidas en una encuesta.
- *
+ * Pregunta de una encuesta con validaciones.
+ * 
  * @author Juan David Valencia
  * @version 1.0
  * @since 2025-07-22
@@ -48,51 +46,21 @@ public class Question {
     }
     
     // Getters y Setters
-    public String getId() {
-        return id;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
     
-    public void setId(String id) {
-        this.id = id;
-    }
+    public String getText() { return text; }
+    public void setText(String text) { this.text = text; }
     
-    public String getText() {
-        return text;
-    }
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
     
-    public void setText(String text) {
-        this.text = text;
-    }
+    public boolean isRequired() { return required; }
+    public void setRequired(boolean required) { this.required = required; }
     
-    public String getType() {
-        return type;
-    }
+    public Object getOptions() { return options; }
+    public void setOptions(Object options) { this.options = options; }
     
-    public void setType(String type) {
-        this.type = type;
-    }
-    
-    public boolean isRequired() {
-        return required;
-    }
-    
-    public void setRequired(boolean required) {
-        this.required = required;
-    }
-    
-    public Object getOptions() {
-        return options;
-    }
-    
-    public void setOptions(Object options) {
-        this.options = options;
-    }
-    
-    public Integer getOrder() {
-        return order;
-    }
-    
-    public void setOrder(Integer order) {
-        this.order = order;
-    }
+    public Integer getOrder() { return order; }
+    public void setOrder(Integer order) { this.order = order; }
 }

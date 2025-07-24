@@ -5,6 +5,7 @@ import com.surveys.surveys.services.ResponseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -14,12 +15,6 @@ import java.util.Map;
 
 /**
  * Controlador REST para la gestión de respuestas a encuestas.
- * 
- * <p>
- * Este controlador proporciona endpoints para que los administradores
- * puedan gestionar y analizar las respuestas enviadas por los usuarios
- * a las encuestas publicadas.
- * 
  * 
  * @author Juan David Valencia
  * @version 1.0
@@ -31,59 +26,15 @@ import java.util.Map;
 @RequestMapping("/api/responses")
 public class ResponseController {
 
-    /**
-     * Servicio para la lógica de negocio de respuestas.
-     */
     @Autowired
     private ResponseService responseService;
 
-    /**
-     * Obtiene todas las respuestas del sistema.
-     * 
-     * <p>
-     * Este endpoint permite a los administradores ver todas las respuestas
-     * enviadas en el sistema, útil para análisis generales y auditoría.
-     *
-     * @return ResponseEntity con la lista de todas las respuestas
-     */
-    @GetMapping
-    public ResponseEntity<List<Response>> getAllResponses() {
-        List<Response> responses = responseService.getAllResponses();
-        return ResponseEntity.ok(responses);
-    }
+    // ========================================
+    // RUTAS PÚBLICAS
+    // ========================================
 
     /**
-     * Obtiene todas las respuestas de una encuesta específica.
-     * 
-     * <p>
-     * Este endpoint es fundamental para el análisis de resultados de una
-     * encuesta, permitiendo a los administradores revisar todas las respuestas
-     * recibidas para generar reportes y estadísticas.
-     *
-     * @param surveyId identificador de la encuesta
-     * @return ResponseEntity con la lista de respuestas de la encuesta
-     */
-    @GetMapping("/survey/{surveyId}")
-    public ResponseEntity<List<Response>> getResponsesBySurvey(@PathVariable String surveyId) {
-        List<Response> responses = responseService.getResponsesBySurvey(surveyId);
-        return ResponseEntity.ok(responses);
-    }
-
-    /**
-     * Endpoint público para enviar respuestas sin autenticación.
-     */
-    @PostMapping("/public/submit")
-    public ResponseEntity<Response> submitPublicResponse(@Valid @RequestBody Response response) {
-        try {
-            Response savedResponse = responseService.saveResponse(response);
-            return new ResponseEntity<>(savedResponse, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
-
-     /**
-     * Método alternativo más específico para guardar respuestas con mejor documentación.
+     * Envía una respuesta a una encuesta publicada.
      * 
      * @param response respuesta de la encuesta
      * @return ResponseEntity con la respuesta guardada
@@ -158,6 +109,35 @@ public class ResponseController {
                     "timestamp", Instant.now()
                 ));
         }
+    }
+
+    // ========================================
+    // RUTAS DE ADMINISTRACIÓN (Solo ADMIN)
+    // ========================================
+
+    /**
+     * Obtiene todas las respuestas del sistema.
+     * 
+     * @return ResponseEntity con la lista de todas las respuestas
+     */
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')") 
+    public ResponseEntity<List<Response>> getAllResponses() {
+        List<Response> responses = responseService.getAllResponses();
+        return ResponseEntity.ok(responses);
+    }
+
+    /**
+     * Obtiene todas las respuestas de una encuesta específica.
+     * 
+     * @param surveyId identificador de la encuesta
+     * @return ResponseEntity con la lista de respuestas de la encuesta
+     */
+    @GetMapping("/survey/{surveyId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Response>> getResponsesBySurvey(@PathVariable String surveyId) {
+        List<Response> responses = responseService.getResponsesBySurvey(surveyId);
+        return ResponseEntity.ok(responses);
     }
 
 }
