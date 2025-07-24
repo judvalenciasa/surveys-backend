@@ -338,4 +338,71 @@ public class SurveyController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+/**
+     * Crea una nueva versión de una encuesta existente.
+     * 
+     * <p>Genera una copia de la encuesta con todas sus preguntas y configuración,
+     * manteniendo una referencia a la versión anterior para control de versiones.
+     * La nueva versión se crea en estado CREADA y debe ser configurada antes
+     * de ser publicada.
+     *
+     * @param id identificador de la encuesta base para crear la nueva versión
+     * @return ResponseEntity con la nueva versión creada y código 201, 
+     *         o 404 si la encuesta original no existe
+     */
+    @PostMapping("/{id}/version")
+    public ResponseEntity<Survey> createNewVersion(@PathVariable String id) {
+        return surveyService.createNewVersion(id)
+                .map(survey -> new ResponseEntity<>(survey, HttpStatus.CREATED))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
+    /**
+     * Obtiene el historial completo de versiones de una encuesta.
+     * 
+     * <p>Retorna una lista ordenada de todas las versiones de una encuesta,
+     * desde la más reciente hasta la versión original. Útil para auditoría
+     * y seguimiento de cambios en encuestas críticas.
+     * 
+     * <p>La lista incluye:
+     * <ul>
+     *   <li>Versión actual</li>
+     *   <li>Todas las versiones anteriores</li>
+     *   <li>Metadatos de fechas de modificación</li>
+     * </ul>
+     *
+     * @param id identificador de cualquier versión de la encuesta
+     * @return ResponseEntity con la lista del historial de versiones,
+     *         o lista vacía si no se encuentra la encuesta
+     */
+    @GetMapping("/{id}/versions")
+    public ResponseEntity<List<Survey>> getSurveyVersionHistory(@PathVariable String id) {
+        List<Survey> versions = surveyService.getSurveyVersionHistory(id);
+        return ResponseEntity.ok(versions);
+    }
+
+
+    /**
+ * Obtiene encuestas públicas disponibles para responder.
+ */
+@GetMapping("/published")
+public ResponseEntity<List<Survey>> getPublishedSurveys() {
+    List<Survey> surveys = surveyService.getSurveys(SurveyStatus.PUBLICADA, false);
+    return ResponseEntity.ok(surveys);
+}
+
+/**
+ * Obtiene información pública de una encuesta específica.
+ */
+@GetMapping("/{id}/view")
+public ResponseEntity<Survey> viewSurvey(@PathVariable String id) {
+    return surveyService.getSurveyById(id)
+            .filter(survey -> survey.getStatus() == SurveyStatus.PUBLICADA)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+}
+
 }

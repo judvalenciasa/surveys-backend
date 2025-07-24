@@ -66,45 +66,52 @@ public class SecurityConfig {
             .sessionManagement(session -> 
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Rutas públicas
+                // ========================================
+                // RUTAS PÚBLICAS (Sin autenticación)
+                // ========================================
+                
+                // Autenticación
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
-                
-                // Rutas para administración de encuestas (solo ADMIN)
+                // 🌍 ENCUESTAS PÚBLICAS - Acceso sin autenticación
                 .requestMatchers(
-                    "/api/surveys",                                    // POST
+                    "/api/surveys/published",           
+                    "/api/surveys/*/view",              
+                    "/api/surveys/*/public"           
+                ).permitAll()
+                
+                .requestMatchers(
+                    "/api/surveys/*/respond",           // Responder encuesta específica
+                    "/api/responses/submit"            // Enviar respuesta
+                ).permitAll()
+                
+                // ========================================
+                // RUTAS DE ADMINISTRACIÓN (Solo ADMIN)
+                // ========================================
+                .requestMatchers(
+                    // Gestión completa de encuestas
+                    "/api/surveys",                                    // POST - Crear
                     "/api/surveys/{id}",                              // GET, PUT, DELETE
-                    "/api/surveys/{surveyId}/questions",              // POST, GET
+                    "/api/surveys/{surveyId}/questions",              // POST, GET - Preguntas
                     "/api/surveys/{surveyId}/questions/{questionId}", // GET, PUT, DELETE
-                    "/api/surveys/{id}/publish",
-                    "/api/surveys/{id}/close",
-                    "/api/surveys/templates/**",
-                    "/api/surveys/{id}/branding",
-                    "/api/surveys/{id}/schedule"
+                    "/api/surveys/{id}/publish",                      // POST - Publicar
+                    "/api/surveys/{id}/close",                        // POST - Cerrar
+                    "/api/surveys/templates/**",                      // Plantillas
+                    "/api/surveys/{id}/branding",                     // PATCH - Branding
+                    "/api/surveys/{id}/schedule",                     // POST - Programar
+                    "/api/surveys/{id}/version",                      // POST - Nueva versión
+                    "/api/surveys/{id}/versions",                     // GET - Historial
+                    "/api/surveys/search",                            // GET - Búsqueda admin
+                    
+                    // Gestión completa de respuestas (solo lectura/administración)
+                    "/api/responses",                                 // GET, POST - Admin
+                    "/api/responses/{id}",                           // GET, PUT, DELETE
+                    "/api/responses/survey/{surveyId}",              // GET - Por encuesta
+                    "/api/responses/date-range",                     // GET - Por fecha
+                    "/api/responses/survey/{surveyId}/date-range",   // GET - Combinado
+                    "/api/responses/survey/{surveyId}/count",        // GET - Contador
+                    "/api/responses/survey/{surveyId}/latest"        // GET - Últimas
                 ).hasRole("ADMIN")
-                
-                // Rutas para empleados
-                .requestMatchers(
-                    "/api/surveys/employee/**",
-                    "/api/responses/employee/**"
-                ).hasAnyRole("ADMIN", "EMPLOYEE")
-                
-                // Rutas para responder encuestas
-                .requestMatchers(
-                    "/api/surveys/*/respond",
-                    "/api/responses/submit"
-                ).hasAnyRole("ADMIN", "EMPLOYEE", "USER")
-                
-                // Rutas para análisis y reportes
-                .requestMatchers("/api/analytics/**").hasRole("ADMIN")
-                
-                // Rutas para ver encuestas publicadas
-                .requestMatchers(
-                    "/api/surveys/published",
-                    "/api/surveys/*/view"
-                ).authenticated()
-                
-                // Cualquier otra ruta requiere autenticación
                 .anyRequest().authenticated())
             .authenticationProvider(authenticationProvider)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

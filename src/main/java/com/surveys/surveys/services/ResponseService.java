@@ -64,6 +64,8 @@ public interface ResponseService {
      */
     List<Response> getResponsesByDateRange(Instant startDate, Instant endDate);
 
+
+    
     /**
      * Busca respuestas de una encuesta en un rango de fechas.
      *

@@ -64,27 +64,6 @@ public interface SurveyRepository extends MongoRepository<Survey, String> {
     List<Survey> findByIsTemplate(boolean isTemplate);
 
     /**
-     * Busca encuestas programadas para abrir en un rango de fechas.
-     *
-     * @param startDate fecha inicial
-     * @param endDate fecha final
-     * @return lista de encuestas programadas en el rango
-     */
-    List<Survey> findByScheduledOpenBetween(Instant startDate, Instant endDate);
-
-    /**
-     * Busca encuestas activas en un momento específico.
-     * Una encuesta está activa si:
-     * - Su estado es PUBLICADA
-     * - La fecha actual está entre scheduledOpen y scheduledClose
-     *
-     * @param currentTime momento actual
-     * @return lista de encuestas activas
-     */
-    @Query("{ 'status': 'PUBLICADA', 'scheduledOpen': { $lte: ?0 }, 'scheduledClose': { $gte: ?0 } }")
-    List<Survey> findActiveAt(Instant currentTime);
-
-    /**
      * Busca encuestas por estado y administrador.
      *
      * @param status estado de la encuesta
@@ -93,63 +72,4 @@ public interface SurveyRepository extends MongoRepository<Survey, String> {
      */
     List<Survey> findByStatusAndAdminId(SurveyStatus status, String adminId);
 
-    /**
-     * Cuenta el número de encuestas en un estado específico para un administrador.
-     *
-     * @param status estado de la encuesta
-     * @param adminId ID del administrador
-     * @return número de encuestas que cumplen los criterios
-     */
-    long countByStatusAndAdminId(SurveyStatus status, String adminId);
-
-    /**
-     * Busca encuestas que estén próximas a cerrar.
-     * 
-     * @param threshold fecha límite para considerar próximo cierre
-     * @return lista de encuestas próximas a cerrar
-     */
-    @Query("{ 'status': 'PUBLICADA', 'scheduledClose': { $lte: ?0 } }")
-    List<Survey> findSurveysNearingClose(Instant threshold);
-
-    /**
-     * Encuentra la última encuesta modificada de un administrador.
-     *
-     * @param adminId ID del administrador
-     * @return Optional con la última encuesta modificada
-     */
-    Optional<Survey> findFirstByAdminIdOrderByModifiedAtDesc(String adminId);
-
-    /**
-     * Busca encuestas por nombre y estado.
-     *
-     * @param name fragmento del nombre a buscar
-     * @param status estado de la encuesta
-     * @return lista de encuestas que cumplen los criterios
-     */
-    List<Survey> findByNameContainingIgnoreCaseAndStatus(String name, SurveyStatus status);
-
-    /**
-     * Busca una encuesta que sea versión de otra encuesta.
-     *
-     * @param previousVersionId identificador de la versión anterior
-     * @return Optional con la encuesta si se encuentra
-     */
-    Optional<Survey> findByPreviousVersionId(String previousVersionId);
-
-    /**
-     * Busca todas las encuestas que tengan al menos una pregunta.
-     *
-     * @return lista de encuestas que contienen preguntas
-     */
-    List<Survey> findByQuestionsNotEmpty();
-
-    /**
-     * Busca encuestas que deben cerrarse basado en su fecha programada de cierre y estado.
-     *
-     * @param date fecha límite para el cierre programado
-     * @param status estado actual de las encuestas a buscar
-     * @return lista de encuestas que cumplen los criterios
-     */
-    @Query("{'scheduledClose': {$lte: ?0}, 'status': ?1}")
-    List<Survey> findByScheduledCloseBeforeAndStatus(Instant date, SurveyStatus status);
 }
