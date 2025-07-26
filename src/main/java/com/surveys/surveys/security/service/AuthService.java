@@ -77,7 +77,7 @@ public class AuthService {
          
         // Asignar roles
         Set<String> roles = new HashSet<>();
-        roles.add("USER");
+        roles.add("ADMIN");
         user.setRoles(roles);
 
         // Guardar usuario

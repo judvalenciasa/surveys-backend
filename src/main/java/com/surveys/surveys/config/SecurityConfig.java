@@ -36,92 +36,91 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthFilter;
-    private final AuthenticationProvider authenticationProvider;
+        private final JwtAuthenticationFilter jwtAuthFilter;
+        private final AuthenticationProvider authenticationProvider;
 
-    /**
-     * Constructor que inicializa los componentes de seguridad.
-     *
-     * @param jwtAuthFilter          filtro de autenticación JWT
-     * @param authenticationProvider proveedor de autenticación
-     */
-    public SecurityConfig(
-            JwtAuthenticationFilter jwtAuthFilter,
-            AuthenticationProvider authenticationProvider) {
-        this.jwtAuthFilter = jwtAuthFilter;
-        this.authenticationProvider = authenticationProvider;
-    }
+        /**
+         * Constructor que inicializa los componentes de seguridad.
+         *
+         * @param jwtAuthFilter          filtro de autenticación JWT
+         * @param authenticationProvider proveedor de autenticación
+         */
+        public SecurityConfig(
+                        JwtAuthenticationFilter jwtAuthFilter,
+                        AuthenticationProvider authenticationProvider) {
+                this.jwtAuthFilter = jwtAuthFilter;
+                this.authenticationProvider = authenticationProvider;
+        }
 
-    /**
-     * Configura la cadena de filtros de seguridad.
-     * 
-     * @param http configuración de seguridad HTTP
-     * @return cadena de filtros configurada
-     * @throws Exception si hay un error en la configuración
-     */
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(
-                                // Encuestas públicas
-                                "/api/surveys/published", // ✅ Ver encuestas publicadas
-                                "/api/surveys/*/view", // ✅ Ver encuesta específica
+        /**
+         * Configura la cadena de filtros de seguridad.
+         * 
+         * @param http configuración de seguridad HTTP
+         * @return cadena de filtros configurada
+         * @throws Exception si hay un error en la configuración
+         */
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .csrf(csrf -> csrf.disable())
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/api/auth/login",
+                                                                "/api/auth/register",
+                                                                "/api/surveys/published",
+                                                                "/api/surveys/*/view",
+                                                                "/api/responses/submit")
+                                                .permitAll()
 
-                                // Responder encuestas
-                                "/api/responses/submit")
-                        .permitAll()
+                                                .requestMatchers("/api/auth/**").authenticated()
 
-                        // ========================================
-                        // RUTAS DE ADMINISTRACIÓN (Solo ADMIN)
-                        // ========================================
-                        .requestMatchers(
-                                // Gestión de encuestas
-                                "/api/surveys", // POST, GET - Admin
-                                "/api/surveys/{id}", // GET, PUT, DELETE - Admin
-                                "/api/surveys/search", // GET - Admin
-                                "/api/surveys/{id}/publish", // POST - Admin
-                                "/api/surveys/{id}/close", // POST - Admin
-                                "/api/surveys/{id}/duplicate", // POST - Admin
-                                "/api/surveys/templates/**", // GET - Admin
-                                "/api/surveys/{id}/branding", // PATCH - Admin
-                                "/api/surveys/{id}/version", // POST - Admin
-                                "/api/surveys/{id}/versions", // GET - Admin
+                                                .requestMatchers(
+                                                                // Encuestas públicas
+                                                                "/api/surveys/published",
+                                                                "/api/surveys/*/view",
+                                                                "/api/responses/submit")
+                                                .permitAll()
 
-                                // Gestión de preguntas
-                                "/api/surveys/{surveyId}/questions/**", // Todas las operaciones
+                                                // Rutas de administración (Solo ADMIN)
+                                                .requestMatchers(
+                                                                "/api/surveys",
+                                                                "/api/surveys/{id}",
+                                                                "/api/surveys/search",
+                                                                "/api/surveys/{id}/publish",
+                                                                "/api/surveys/{id}/close",
+                                                                "/api/surveys/{id}/duplicate",
+                                                                "/api/surveys/{id}/branding",
+                                                                "/api/surveys/{id}/version",
+                                                                "/api/surveys/{id}/versions",
+                                                                "/api/surveys/{surveyId}/questions/**",
+                                                                "/api/responses",
+                                                                "/api/responses/survey/{surveyId}")
+                                                .hasRole("ADMIN")
 
-                                // Gestión de respuestas (solo admin)
-                                "/api/responses", // GET - Ver todas
-                                "/api/responses/survey/{surveyId}" // GET - Por encuesta
+                                                .anyRequest().authenticated())
+                                .authenticationProvider(authenticationProvider)
+                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-                        ).hasRole("ADMIN")
-                        .anyRequest().authenticated())
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                return http.build();
+        }
 
-        return http.build();
-    }
+        /**
+         * Configura las políticas CORS.
+         * 
+         * @return origen de configuración CORS
+         */
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration configuration = new CorsConfiguration();
+                configuration.setAllowedOrigins(Arrays.asList("*"));
+                configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+                configuration.setExposedHeaders(Arrays.asList("Authorization"));
 
-    /**
-     * Configura las políticas CORS.
-     * 
-     * @return origen de configuración CORS
-     */
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
-        configuration.setExposedHeaders(Arrays.asList("Authorization"));
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", configuration);
+                return source;
+        }
 }
