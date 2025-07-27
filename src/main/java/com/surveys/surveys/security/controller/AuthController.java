@@ -19,7 +19,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(
-    origins = "*",
+    origins = {
+        "http://localhost:3000",    // React
+        "http://localhost:5173",    // Vite (tu frontend)
+        "http://localhost:8080",    // Vue/Angular
+        "http://localhost:4200",    // Angular CLI
+        "http://127.0.0.1:5173",    // Variante de Vite
+        "http://localhost:8082"     // Backend testing
+    },
     methods = {
         RequestMethod.POST,
         RequestMethod.GET,
@@ -27,9 +34,15 @@ import org.springframework.web.bind.annotation.*;
     },
     allowedHeaders = {
         "Authorization",
-        "Content-Type"
+        "Content-Type",
+        "X-Requested-With",
+        "Accept",
+        "Origin"
     },
-    exposedHeaders = "Authorization"
+    exposedHeaders = {
+        "Authorization"
+    },
+    allowCredentials = "true"
 )
 public class AuthController {
 

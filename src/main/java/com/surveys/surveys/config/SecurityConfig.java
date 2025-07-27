@@ -115,7 +115,14 @@ public class SecurityConfig {
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOrigins(Arrays.asList("*"));
+                configuration.setAllowedOrigins(Arrays.asList(
+                        "http://localhost:3000",    // React
+                        "http://localhost:5173",    // Vite (tu frontend)
+                        "http://localhost:8080",    // Vue/Angular
+                        "http://localhost:4200",    // Angular CLI
+                        "http://127.0.0.1:5173",    // Variante de Vite
+                        "http://localhost:8082"     // Backend testing
+                    ));
                 configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
                 configuration.setExposedHeaders(Arrays.asList("Authorization"));
