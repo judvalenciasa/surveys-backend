@@ -1,0 +1,31 @@
+cmd
+
+# 2.1En el directorio del proyecto
+Ir al directorio de claves:
+cd /mnt/c/Users/judva/Proyectos/Spring\ Boot/users-backend/surveys
+
+2.2 Verificar archivos necesarios:
+# Limpiar compilaciones anteriores
+./mvnw clean
+
+2.3 Subir JAR a EC2:
+# Compilar y generar JAR
+./mvnw package -DskipTests
+
+
+subir al servior ubunto
+3.1 Conectarse a EC2:
+ssh -i "key-surveys.pem" ec2-user@ec2-54-163-45-68.compute-1.amazonaws.com
+
+Ingresar a ec2
+scp -i "key-surveys.pem" ../Proyectos/Spring\ Boot/users-backend/surveys/target/surveys-0.0.1-SNAPSHOT.jar ec2-user@ec2-54-163-45-68.compute-1.amazonaws.com:/home/ec2-user/
+
+
+3.3 Detener aplicación anterior (si existe):
+# Ver procesos Java corriendo
+ps aux | grep java
+
+# Si hay una aplicación corriendo, obtén el PID y elimínala
+kill [PID_DEL_PROCESO]
+
+# O si está en otra terminal, presiona Ctrl+C
