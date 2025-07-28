@@ -96,4 +96,9 @@ public interface SurveyService {
      * Obtiene historial de versiones.
      */
     List<Survey> getSurveyVersionHistory(String originalSurveyId);
+
+    /**
+     * Verifica y actualiza el estado de una encuesta.
+     */
+    Survey checkAndUpdateSurveyStatus(Survey survey);
 }

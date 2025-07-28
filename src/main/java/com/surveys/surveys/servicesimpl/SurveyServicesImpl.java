@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import com.surveys.surveys.model.Question;
 import java.util.ArrayList;
+import java.time.Instant; // ✅ AÑADIR este import
 
 /**
  * Implementación del servicio de encuestas con MongoDB.
@@ -46,7 +47,16 @@ public class SurveyServicesImpl implements SurveyService {
 
     @Override
     public Optional<Survey> getSurveyById(String id) {
-        return surveyRepository.findById(id);
+        Optional<Survey> surveyOpt = surveyRepository.findById(id);
+        
+        if (surveyOpt.isPresent()) {
+            Survey survey = surveyOpt.get();
+            // ✅ AÑADIR: Verificar y actualizar estado automáticamente
+            Survey updatedSurvey = checkAndUpdateSurveyStatus(survey);
+            return Optional.of(updatedSurvey);
+        }
+        
+        return Optional.empty();
     }
 
     @Override
@@ -198,5 +208,39 @@ public class SurveyServicesImpl implements SurveyService {
         }
         
         return versions;
+    }
+
+    /**
+     * ✅ NUEVO: Verifica y actualiza automáticamente el estado basado en scheduledClose
+     */
+    @Override
+    public Survey checkAndUpdateSurveyStatus(Survey survey) {
+        if (survey == null) {
+            return survey;
+        }
+        
+        Instant now = Instant.now();
+        
+       
+        if (survey.getStatus() == SurveyStatus.PUBLICADA && 
+            survey.getScheduledClose() != null && 
+            now.isAfter(survey.getScheduledClose())) {
+            
+            System.out.println("🔄 Auto-closing survey: " + survey.getId() + 
+                             " (scheduled close: " + survey.getScheduledClose() + 
+                             ", current time: " + now + ")");
+            
+        
+            survey.setStatus(SurveyStatus.CERRADA);
+            
+            
+            Survey savedSurvey = surveyRepository.save(survey);
+            
+            System.out.println(" Survey auto-closed successfully: " + survey.getId());
+            
+            return savedSurvey;
+        }
+        
+        return survey;
     }
 }
